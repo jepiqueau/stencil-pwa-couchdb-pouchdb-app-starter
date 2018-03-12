@@ -42,24 +42,28 @@ After installation and initial startup, visit Fauxton at http://127.0.0.1:5984/_
 ### Server Application
 . Install the server application
 
-    ```
-    cd couchdb-app-server
-    npm install
-    ```
+```
+cd couchdb-app-server
+npm install
+```
 . Open the app/config.js and replace
+```
     config.CouchDB.sharedDB = 'jpqtest';   // replace by your database name
-      user: 'jeep',                    // replace by your admin user
-      password: 'c0jeep',              // replace by your admin password
-
+    user: 'jeep',                          // replace by your admin user
+    password: 'c0jeep',                    // replace by your admin password
+```
 . Start the server application
-    ```
-    node server
-    ```
+
+```
+node server
+```
+
 . Preload some data in the database if you wish (not required, you can start creating news from the client app)
+
     .on MAC OSX
-    ```
-    ./createadatabase.sh dbname username password
-    ```
+```
+./createadatabase.sh dbname username password
+```
     where dbname is your database name, username the admin user and password the admin password.
 
     .on Windows (not yet fixed)
@@ -73,12 +77,12 @@ cd couchdb-app-server
 npm install
 ```
 . Open the src/global/conctants.ts and update the 4 constants accordingly with your wish
-
+```
     export const SERVER_ADDRESS = 'http://localhost:3000/'; // application server address
     export const LOCALSTORE_NAME = 'testpouchdb';           // name of the browser local store (client)
     export const POUCHDB_NAME = 'jpqtestdb';                // name of the POUCHDB database (client)
     export const COUCHDB_NAME = 'jpqtest';                  // name of the COUCHDB database (server)
-
+``
 . Start the client application
 ```
 npm start
