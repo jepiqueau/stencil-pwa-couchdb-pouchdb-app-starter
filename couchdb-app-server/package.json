@@ -1,0 +1,31 @@
+{
+  "name": "pwacouchdbpouchdbserverappstarter",
+  "version": "0.1.0",
+  "description": "Stencil PWA CouchDB-PouchDB Application Starter Server",
+  "engines": {
+    "node": "6.11.1"
+  },
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "keywords": [
+    "Node",
+    "CouchDB",
+    "PouchDB",
+    "PWA",
+    "Typescript"
+  ],
+  "dependencies": {
+    "body-parser": "^1.17.2",
+    "cors": "^2.8.3",
+    "del": "3.0.0",
+    "express": "^4.15.3",
+    "https": "1.0.0",
+    "method-override": "^2.3.9",
+    "morgan": "^1.9.0",
+    "node-fetch": "^2.0.0",
+    "request": "^2.83.0",
+    "superlogin": "^0.6.1"
+  }
+}

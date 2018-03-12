@@ -1,0 +1,34 @@
+/* Document Level Styles */
+:root {
+  --theme-c1:       #464646;
+  --theme-c2:       #f36f21;
+  --theme-c3:       #7d0a4b;
+  --theme-c4:       #8c8b1e;
+  --theme-c5:       #280a5a;
+  --theme-c6:       #ffffff;
+  --theme-c7:       #222;
+}
+
+body {
+  margin: 0px;
+  padding: 0px;
+  font-family: sans-serif;
+}
+ion-page {
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+
+  position: absolute;
+  z-index: 0;
+  display: flex;
+
+  flex-direction: column;
+  justify-content: space-between;
+
+  width: 100%;
+  height: 100%;
+
+  contain: layout size style;
+}

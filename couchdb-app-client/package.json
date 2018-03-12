@@ -1,0 +1,70 @@
+{
+  "name": "pwacouchdbpouchdbclientappstarter",
+  "version": "0.1.0",
+  "description": "Stencil PWA CouchDB-PouchDB Application Starter Client",
+  "files": [
+    "dist/"
+  ],
+  "keywords": [
+    "Stencil",
+    "CouchDB",
+    "PouchDB",
+    "PWA",
+    "Typescript"
+  ],
+  "scripts": {
+    "build": "stencil build --prerender",
+    "dev": "sd concurrent \"stencil build --dev --watch\" \"stencil-dev-server\" ",
+    "devWithSW": "sd concurrent \"stencil build --dev --service-worker --watch\" \"stencil-dev-server\" ",
+    "serve": "stencil-dev-server",
+    "start": "npm run dev",
+    "test": "jest --no-cache",
+    "test.watch": "jest --watch --no-cache"
+  },
+  "dependencies": {
+    "@ionic/core": "^0.1.0",
+    "@stencil/core": "^0.6.18",
+    "@stencil/router": "latest",
+    "@types/pouchdb": "^6.3.2",
+    "pouchdb-browser": "^6.4.3"
+  },
+  "devDependencies": {
+    "@stencil/dev-server": "latest",
+    "@stencil/sass": "0.0.2",
+    "@stencil/utils": "latest",
+    "@types/jest": "^22.1.3",
+    "jest": "^22.3.0",
+    "jest-fetch-mock": "^1.4.2",
+    "jest-localstorage-mock": "^2.2.0",
+    "pouchdb-memory": "^6.0.0",
+    "ts-jest": "^22.0.4",
+    "typescript": "^2.7.2"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jepiqueau/stencil-pwa-couchdb-pouchdb-app-starter.git"
+  },
+  "author": "Jean Pierre Queau",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/jepiqueau/stencil-pwa-couchdb-pouchdb-app-starter/issues"
+  },
+  "homepage": "https://github.com/jepiqueau/stencil-pwa-couchdb-pouchdb-app-starter#readme",
+  "jest": {
+    "transform": {
+      "^.+\\.(js|ts|tsx)$": "<rootDir>/node_modules/@stencil/core/testing/jest.preprocessor.js"
+    },
+    "setupFiles": [
+      "jest-localstorage-mock",
+      "./setupJest.js"
+    ],
+    "testRegex": "(/__tests__/.*|\\.(test|spec))\\.(tsx?|jsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "json",
+      "jsx"
+    ]
+  }
+}
