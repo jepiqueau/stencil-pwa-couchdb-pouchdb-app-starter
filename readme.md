@@ -60,15 +60,15 @@ node server
 
 . Preload some data in the database if you wish (not required, you can start creating news from the client app)
 
-    .on MAC OSX
+on MAC OSX
 ```
 ./createadatabase.sh dbname username password
 ```
     where dbname is your database name, username the admin user and password the admin password.
 
-    .on Windows (not yet fixed)
+on Windows (not yet fixed)
 
-. Visit http://127.0.0.1:5984/_utils/#/_all_dbs
+Visit http://127.0.0.1:5984/_utils/#/_all_dbs
     you should see your database in the list of databases, select your database you should have 4 documents loaded
 
 ### Client Application
@@ -76,22 +76,23 @@ node server
 cd couchdb-app-server
 npm install
 ```
-. Open the src/global/conctants.ts and update the 4 constants accordingly with your wish
+Open the src/global/conctants.ts and update the 4 constants accordingly with your wish
 ```
     export const SERVER_ADDRESS = 'http://localhost:3000/'; // application server address
     export const LOCALSTORE_NAME = 'testpouchdb';           // name of the browser local store (client)
     export const POUCHDB_NAME = 'jpqtestdb';                // name of the POUCHDB database (client)
     export const COUCHDB_NAME = 'jpqtest';                  // name of the COUCHDB database (server)
-``
-. Start the client application
+```
+
+#### Start the client application
 ```
 npm start
 ```
-. Run Tests
+#### Run Tests
 ```
 npm test
 ```
-. Build PWA 
+#### Build PWA 
 ```
 npm run build
 ```
@@ -104,12 +105,12 @@ TypeError: Cannot read property 'remove' of undefined
 
 The PouchDB-browser library cannot be imported as Stencil cannot succesfully compile the application. 
 Identified Reasons:
-    . the Stencil compile process should, when compiling the debug library used by Pouchdb, compile the browser.js and not the node.js and at the runtime the process should have a process.type equal to 'renderer'.
+    the Stencil compile process should, when compiling the debug library used by Pouchdb, compile the browser.js and not the node.js and at the runtime the process should have a process.type equal to 'renderer'.
 
 so the library is loaded in the index.html as
-    ```
-    <script src="//cdn.jsdelivr.net/npm/pouchdb@6.4.3/dist/pouchdb.min.js"></script> 
-    ```
+```
+<script src="//cdn.jsdelivr.net/npm/pouchdb@6.4.3/dist/pouchdb.min.js"></script> 
+```
 
 
 
