@@ -107,6 +107,11 @@ var digest = 'SHA1';
 just after 
 var encoding = 'hex';
 
+and replace the line 
+    crypto.pbkdf2(pwd, salt, iterations, keylen, function(err, hash) {
+with
+    crypto.pbkdf2(pwd, salt, iterations, keylen, digest, function(err, hash) {
+
 ```
 This problem has been reported to Superlogin and couch-pwd
 
