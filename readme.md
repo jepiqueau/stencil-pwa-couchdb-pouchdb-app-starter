@@ -96,6 +96,20 @@ npm test
 ```
 npm run build
 ```
+
+### Server Application Issues
+if you got this error reported on the server console when a client try to login please do the following:
+```
+go to the index.js of the node_modules/couch-pwd on the server app and add the following line 
+
+var digest = 'SHA1';
+
+just after 
+var encoding = 'hex';
+
+```
+This problem has been reported to Superlogin and couch-pwd
+
 ### Client Application Issues
 In running the Client Application, you will see some messages in the console coming from the set-up of PouchDB the first time you log and also some messages from the MenuController and the Menu which do not avoid the application to run smoothly.
 
