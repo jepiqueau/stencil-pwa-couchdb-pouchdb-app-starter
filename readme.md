@@ -107,7 +107,7 @@ var digest = 'SHA1';
 just after 
 var encoding = 'hex';
 
-and replace the line 
+and replace the lines 43 et 57 
     crypto.pbkdf2(pwd, salt, iterations, keylen, function(err, hash) {
 with
     crypto.pbkdf2(pwd, salt, iterations, keylen, digest, function(err, hash) {
