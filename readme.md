@@ -58,7 +58,7 @@ npm install
 node server
 ```
 
-. Preload some data in the database if you wish (not required, you can start creating news from the client app)
+. Preload some data in the database if you wish (not required, you can start creating news from the client app). these scripts require curl 
 
 on MAC OSX
 ```
@@ -66,7 +66,10 @@ on MAC OSX
 ```
     where dbname is your database name, username the admin user and password the admin password.
 
-on Windows (not yet fixed)
+on Windows 
+execute the following command from a powershell command windows in the couchdb-app-server directory
+````
+powershell -File .\createadatabase.ps1 dbname username password
 
 Visit http://127.0.0.1:5984/_utils/#/_all_dbs
     you should see your database in the list of databases, select your database you should have 4 documents loaded

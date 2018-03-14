@@ -22,7 +22,7 @@
     "test.watch": "jest --watch --no-cache"
   },
   "dependencies": {
-    "@ionic/core": "^0.1.0",
+    "@ionic/core": "^0.1.4-5",
     "@stencil/core": "^0.6.18",
     "@stencil/router": "latest",
     "@types/pouchdb": "^6.3.2",
