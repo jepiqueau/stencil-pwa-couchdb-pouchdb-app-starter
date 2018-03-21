@@ -22,10 +22,12 @@ describe('app-sessionMock', () => {
     afterEach(async () => {
         appSession.restoreMock();
         appSession.resetMock();
-        appSession = null;
     });
     it('should build', () => {
         expect(appSession).toBeTruthy();
+    });
+    it('When appSession created show have el= app-session', () => {
+        expect(appSession.el.tagName).toEqual('APP-SESSION');
     });
     it('should save session data to store', async () => {
         appSession.saveSessionData(session);

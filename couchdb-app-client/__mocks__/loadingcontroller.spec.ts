@@ -9,10 +9,12 @@ describe('loadingcontroller', () => {
     afterEach(() => {
         loadingCtrl.restoreMock();
         loadingCtrl.resetMock();
-        loadingCtrl = null;        
     });
     it('should create a LoadingController from mock', () => {
         expect(loadingCtrl).toBeDefined;
+    });
+    it('When LoadingController created show have el= ion-loading-controller', () => {
+        expect(loadingCtrl.el.tagName).toEqual('ION-LOADING-CONTROLLER');
     });
     it('should create a loading from the Loading Controller', async () => {
         let loading:any = await loadingCtrl.create({

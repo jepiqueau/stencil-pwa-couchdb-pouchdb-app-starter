@@ -9,10 +9,12 @@ describe('errorcontroller', () => {
     afterEach(() => {
         errCtrl.restoreMock();
         errCtrl.resetMock();
-        errCtrl = null;        
     });
     it('should create an Error Controller from mock', () => {
         expect(errCtrl).toBeDefined;
+    });
+    it('When ErrorController created show have el= app-error', () => {
+        expect(errCtrl.el.tagName).toEqual('APP-ERROR');
     });
     it('should show an error message', () => {
         errCtrl.showError('Application Server not connected');

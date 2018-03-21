@@ -9,7 +9,7 @@ import AppPouchDBMock from '../../__mocks__/app-pouchdb';
 import AppAuthMock from '../../__mocks__/app-auth';
 import AppConnMock from '../../__mocks__/app-connection';
 import ErrCtrlMock from '../../__mocks__/errorcontroller';
-import HistoryRouterMock from '../../__mocks__/historyrouter';
+import NavCmptMock from '../../__mocks__/nav';
 import { Session } from '../global/interfaces';
 
 describe('ui-utilities', () => {
@@ -23,7 +23,7 @@ describe('ui-utilities', () => {
     let pouchDBProvMock: any;
     let authProvMock: any;
     let connProvMock: any;
-    let historyMock: any;
+    let navCmptMock: any;
     let session: Session = {
         user_id: 'joesmith',
         token: 'gtKeORg_Slukgc4I5drTpQ',
@@ -44,7 +44,7 @@ describe('ui-utilities', () => {
         sessionProvMock = new AppSessionMock();
         pouchDBProvMock = new AppPouchDBMock();
         authProvMock = new AppAuthMock();
-        historyMock = new HistoryRouterMock();
+        navCmptMock = new NavCmptMock();
         connProvMock = new AppConnMock();
 
         win = mockWindow();
@@ -65,9 +65,9 @@ describe('ui-utilities', () => {
         authProvMock.resetMock();
         connProvMock.restoreMock();
         connProvMock.resetMock();
-        historyMock.restoreMock();
-        historyMock.resetMock();
-        historyMock = null;
+        navCmptMock.restoreMock();
+        navCmptMock.resetMock();
+        navCmptMock = null;
         errCtrlMock = null;
         sessionProvMock = null;
         pouchDBProvMock = null;
@@ -218,11 +218,13 @@ describe('ui-utilities', () => {
         let mocks = {authProvider: authProvMock,
             pouchDBProvider: pouchDBProvMock,
             sessionProvider: sessionProvMock,
-            errorCtrl: errCtrlMock};
+            errorCtrl: errCtrlMock,
+            navCmpt: navCmptMock};
         let comps: any = {authProvider:true,
             pouchDBProvider:true,
             sessionProvider:true,
-            errorCtrl:true};
+            errorCtrl:true,
+            navCmpt:true};
         await initializeMocks(comps,mocks);
         expect(await comps.authProvider.getIsServer()).toBeFalsy();
         expect(comps.pouchDBProvider.getDB()).toBeNull;
@@ -233,25 +235,29 @@ describe('ui-utilities', () => {
         let mocks:any = {
             authProvider: authProvMock,
             sessionProvider: sessionProvMock,
-            errorCtrl: errCtrlMock
+            errorCtrl: errCtrlMock,
+            navCmpt: navCmptMock
         };
-        let comps:any = {authProvider:true,sessionProvider:true,errorCtrl:true} 
+        let comps:any = {authProvider:true,sessionProvider:true,errorCtrl:true,
+            navCmpt:true} 
         await initializeMocks(comps,mocks);
         comps.authProvider.responseMock({status:400,message:'Application Server not connected'});
-        await checkServersConnected(historyMock, loadingCtrl,comps, 'page','Connecting ...')
+        await checkServersConnected(loadingCtrl,comps, 'page','Connecting ...')
         expect(comps.errorCtrl.getMessageMock()).toEqual("Application Server not connected");                                   
     });
     it('should return status 400  and stay on Page page when Application server connected DBServer disconnected and session null', async () => {
         let mocks:any = {
             authProvider: authProvMock,
             sessionProvider: sessionProvMock,
-            errorCtrl: errCtrlMock
+            errorCtrl: errCtrlMock,
+            navCmpt: navCmptMock
         };
-        let comps:any = {authProvider:true,sessionProvider:true,errorCtrl:true} 
+        let comps:any = {authProvider:true,sessionProvider:true,errorCtrl:true,
+            navCmpt:true} 
         await initializeMocks(comps,mocks);
         let server:any = {status:200,result:{server:true,dbserver:false}};
         comps.authProvider.responseMock(server);
-        await checkServersConnected(historyMock, loadingCtrl,comps, 'page','Connecting ...')
+        await checkServersConnected(loadingCtrl,comps, 'page','Connecting ...')
         expect(comps.errorCtrl.getMessageMock()).toEqual("Application Server not connected");                                   
     });
     it('should return status 200  and navigate to Home page when servers are connected and session exists', async () => {
@@ -259,41 +265,47 @@ describe('ui-utilities', () => {
             authProvider: authProvMock,
             sessionProvider: sessionProvMock,
             errorCtrl: errCtrlMock,
-            connectionProvider: connProvMock
+            connectionProvider: connProvMock,
+            navCmpt: navCmptMock
         };
-        let comps:any = {authProvider:true,sessionProvider:true,errorCtrl:true,connectionProvider:true} 
+        let comps:any = {authProvider:true,sessionProvider:true,errorCtrl:true,
+            navCmpt:true,connectionProvider:true} 
         await initializeMocks(comps,mocks);
         let server:any = {status:200,result:{server:true,dbserver:true}};
         comps.sessionProvider.saveSessionData(session);
         comps.authProvider.dataReauthenticateMock({status:200});
         comps.authProvider.responseMock(server);
-        await checkServersConnected(historyMock, loadingCtrl,comps, 'page','Connecting ...')
-        expect(historyMock.getPathMock()).toEqual('/home/connected');
+        await checkServersConnected(loadingCtrl,comps, 'page','Connecting ...')
+        expect(navCmptMock.getPageMock()).toEqual('app-home');
     });
     it('should return status 200  and navigate to Home page when servers are disconnected and session exists', async () => {
         let mocks:any = {
             authProvider: authProvMock,
             sessionProvider: sessionProvMock,
             errorCtrl: errCtrlMock,
-            connectionProvider: connProvMock
+            connectionProvider: connProvMock,
+            navCmpt: navCmptMock
         };
-        let comps:any = {authProvider:true,sessionProvider:true,errorCtrl:true,connectionProvider:true} 
+        let comps:any = {authProvider:true,sessionProvider:true,errorCtrl:true,
+            navCmpt:true,connectionProvider:true} 
         await initializeMocks(comps,mocks);
         let server:any = {status:400,message:'Application Server not connected'};
         comps.authProvider.dataReauthenticateMock({status:200});
         comps.sessionProvider.saveSessionData(session);
         comps.authProvider.responseMock(server);
-        await checkServersConnected(historyMock, loadingCtrl,comps, 'page','Connecting ...')
-        expect(historyMock.getPathMock()).toEqual('/home/offline');
+        await checkServersConnected(loadingCtrl,comps, 'page','Connecting ...')
+        expect(navCmptMock.getPageMock()).toEqual('app-home');
         expect(comps.errorCtrl.getMessageMock()).toEqual("Working Offline");                    
     });
     it('should return status 400  and navigate to Login page when servers are connected and session expired', async () => {
         let mocks:any = {
             authProvider: authProvMock,
             sessionProvider: sessionProvMock,
-            errorCtrl: errCtrlMock
+            errorCtrl: errCtrlMock,
+            navCmpt: navCmptMock
         };
-        let comps:any = {authProvider:true,sessionProvider:true,errorCtrl:true} 
+        let comps:any = {authProvider:true,sessionProvider:true,errorCtrl:true,
+            navCmpt:true} 
         await initializeMocks(comps,mocks);
         let server:any = {status:200,result:{server:true,dbserver:true}};
         session.issued = 1517680659920;
@@ -301,23 +313,25 @@ describe('ui-utilities', () => {
         comps.authProvider.dataReauthenticateMock({status:400,message: 'Session expired'});
         comps.sessionProvider.saveSessionData(session);
         comps.authProvider.responseMock(server);
-        await checkServersConnected(historyMock, loadingCtrl,comps, 'page','Connecting ...')
-        expect(historyMock.getPathMock()).toEqual('/login');
+        await checkServersConnected(loadingCtrl,comps, 'page','Connecting ...')
+        expect(navCmptMock.getPageMock()).toEqual('app-login');
         expect(comps.errorCtrl.getMessageMock()).toEqual("Session expired");                    
     });
     it('should return status 400 and navigate to Login page hen servers are connected and no session opended', async () => {
         let mocks:any = {
             authProvider: authProvMock,
             sessionProvider: sessionProvMock,
-            errorCtrl: errCtrlMock
+            errorCtrl: errCtrlMock,
+            navCmpt: navCmptMock
         };
-        let comps:any = {authProvider:true,sessionProvider:true,errorCtrl:true} 
+        let comps:any = {authProvider:true,sessionProvider:true,errorCtrl:true,
+            navCmpt:true} 
         await initializeMocks(comps,mocks);
         let server:any = {status:200,result:{server:true,dbserver:true}};
         comps.authProvider.dataReauthenticateMock({status:400,message: 'No session opened'});
         comps.authProvider.responseMock(server);
-        await checkServersConnected(historyMock, loadingCtrl,comps, 'page','Connecting ...')
-        expect(historyMock.getPathMock()).toEqual('/login');
+        await checkServersConnected(loadingCtrl,comps, 'page','Connecting ...')
+        expect(navCmptMock.getPageMock()).toEqual('app-login');
         expect(comps.errorCtrl.getMessageMock()).toEqual("No session opened");                    
     });
 });

@@ -9,7 +9,6 @@ describe('loading', () => {
     afterEach(() => {
         loading.restoreMock();
         loading.resetMock();
-        loading = null;        
     });
     it('should create a Loading from mock', () => {
         expect(loading).toBeDefined;

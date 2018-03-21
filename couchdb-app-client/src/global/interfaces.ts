@@ -23,6 +23,7 @@ export interface Credentials {
 export interface PDBOptions {
     pouchDB?: any;
     adapter?: string;
+    designDocs?: boolean;
 }
 export interface News {
     _id?: string;
@@ -36,5 +37,10 @@ export interface News {
     dateCreated?: string;
     dateUpdated?: string;
 
+}
+export interface PopOptions {
+    component: any;
+    data?: any;
+    ev: Event;
 }
 

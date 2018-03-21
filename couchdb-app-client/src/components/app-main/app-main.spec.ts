@@ -14,7 +14,7 @@ describe('app-main', () => {
               components: [AppMain],
               html: '<app-main></app-main>'
             });
-            router = element.querySelector('stencil-router');
+            router = element.querySelector('ion-router');
         });
         it('should have a stencil router element', async () => {
             await flush(element);
@@ -22,39 +22,54 @@ describe('app-main', () => {
         });
         it('should have seven route elements', async () => {
             await flush(element);
-            let routes:HTMLCollection = router.querySelectorAll('stencil-route');
+            let routes:HTMLCollection = router.querySelectorAll('ion-route');
             expect(routes.length).toEqual(8);
-            expect(routes[0].getAttribute('url')).toEqual('/');
-            expect(routes[1].getAttribute('url')).toEqual('/login');
-            expect(routes[2].getAttribute('url')).toEqual('/register');
-            expect(routes[3].getAttribute('url')).toEqual('/home/:conmode');
-            expect(routes[4].getAttribute('url')).toEqual('/news/create');
-            expect(routes[5].getAttribute('url')).toEqual('/news/display');
+            expect(routes[0].getAttribute('path')).toEqual('/');
+            expect(routes[1].getAttribute('path')).toEqual('/login');
+            expect(routes[2].getAttribute('path')).toEqual('/register');
+            expect(routes[3].getAttribute('path')).toEqual('/home');
+            expect(routes[4].getAttribute('path')).toEqual('/news/create');
+            expect(routes[5].getAttribute('path')).toEqual('/news/display');
         });
         it('should have a route to app-page as first page', async () => {
             await flush(element);
-            let routes:HTMLCollection = router.querySelectorAll('stencil-route');
-            expect(routes[0].getAttribute('url')).toEqual('/');
+            let routes:HTMLCollection = router.querySelectorAll('ion-route');
+            expect(routes[0].getAttribute('path')).toEqual('/');
             expect(routes[0].getAttribute('component')).toEqual('app-page');
-            expect(routes[0].getAttribute('exact')).toBeTruthy();
         });
         it('should have a route to app-login', async () => {
             await flush(element);
-            let routes:HTMLCollection = router.querySelectorAll('stencil-route');
-            expect(routes[1].getAttribute('url')).toEqual('/login');
+            let routes:HTMLCollection = router.querySelectorAll('ion-route');
+            expect(routes[1].getAttribute('path')).toEqual('/login');
             expect(routes[1].getAttribute('component')).toEqual('app-login');
         });
         it('should have a route to app-register', async () => {
             await flush(element);
-            let routes:HTMLCollection = router.querySelectorAll('stencil-route');
-            expect(routes[2].getAttribute('url')).toEqual('/register');
+            let routes:HTMLCollection = router.querySelectorAll('ion-route');
+            expect(routes[2].getAttribute('path')).toEqual('/register');
             expect(routes[2].getAttribute('component')).toEqual('app-register');
         });
         it('should have a route to app-home', async () => {
           await flush(element);
-          let routes:HTMLCollection = router.querySelectorAll('stencil-route');
-          expect(routes[3].getAttribute('url')).toEqual('/home/:conmode');
+          let routes:HTMLCollection = router.querySelectorAll('ion-route');
+          expect(routes[3].getAttribute('path')).toEqual('/home');
           expect(routes[3].getAttribute('component')).toEqual('app-home');
+        });
+        it('should have a ion-nav component', async () => {
+            await flush(element);
+            let nav: HTMLIonNavElement = element.querySelector('ion-nav');
+            expect(nav).toBeDefined();
+            expect(nav.getAttribute('id')).toEqual('navId');
+        });
+        it('should have a ion-popover-controller component', async () => {
+            await flush(element);
+            let popCtrl: HTMLIonPopoverControllerElement = element.querySelector('ion-popover-controller');
+            expect(popCtrl).toBeDefined();
+        });
+        it('should have an app-menu web commponent', async () => {
+            await flush(element);
+            let menu: HTMLElement = element.querySelector('app-menu');
+            expect(menu).toBeDefined();
         });
         it('should have an app-auth web commponent', async () => {
             await flush(element);
@@ -78,8 +93,8 @@ describe('app-main', () => {
         });
         it('should have an app-connection web commponent', async () => {
             await flush(element);
-            let pouchdb: HTMLElement = element.querySelector('app-connection');
-            expect(pouchdb).toBeDefined();
+            let conn: HTMLElement = element.querySelector('app-connection');
+            expect(conn).toBeDefined();
         });
     });
 });

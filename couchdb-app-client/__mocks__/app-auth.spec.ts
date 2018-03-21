@@ -27,6 +27,9 @@ describe('app-authMock', () => {
     it('should build', () => {
         expect(appAuth).toBeTruthy();
     });
+    it('When appAuth created show have el= app-auth', () => {
+        expect(appAuth.el.tagName).toEqual('APP-AUTH');
+    });
     it('should not have server connected', async () => {
         let isServer:boolean = await appAuth.getIsServer();
         expect(isServer).toBeFalsy();       

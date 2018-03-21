@@ -5,14 +5,14 @@ import { Component, Method } from '@stencil/core';
   styleUrl: 'app-connection.scss'
 })
 export class AppConnection {
-    private _conMode: string;
+    private _conMode: string = '';
     @Method()
     setConnection(conMode:string) {
       this._conMode = conMode;
     }
     @Method()
-    getConnection() {
-      return this._conMode;
+    getConnection(): Promise<string> {
+      return Promise.resolve(this._conMode);
     }
     // rendering
     render() {

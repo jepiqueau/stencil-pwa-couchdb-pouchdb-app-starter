@@ -4,14 +4,14 @@ import AppAuthMock from '../../../__mocks__/app-auth';
 import AppSessionMock from '../../../__mocks__/app-session';
 import ErrCtrlMock from '../../../__mocks__/errorcontroller';
 import LoadingCtrlMock from '../../../__mocks__/loadingcontroller';
-import HistoryRouterMock from '../../../__mocks__/historyrouter';
+import NavCmptMock from '../../../__mocks__/nav';
 import { Session } from '../../global/interfaces';
 import { ERROR_USERNAME, ERROR_PASSWORD } from '../../global/constants';
 
 let appSession: any;
 let appAuth: any;
 let errCtrl: any;
-let history: any;
+let navCmpt: any;
 let loadingCtrl: any;
 describe('app-login', () => {
     it('should build', () => {
@@ -30,32 +30,26 @@ describe('app-login', () => {
             appSession = new AppSessionMock();
             errCtrl = new ErrCtrlMock();
             loadingCtrl = new LoadingCtrlMock();
-            history = new HistoryRouterMock();
+            navCmpt = new NavCmptMock();
             mocks = {
                 authProvider:appAuth,
                 sessionProvider:appSession,
                 errorCtrl:errCtrl,
                 loadingCtrl:loadingCtrl,
-                history:history 
+                navCmpt:navCmpt
             }
         });
         afterEach(async() => {
             appAuth.restoreMock();
             appSession.restoreMock();
             errCtrl.restoreMock();
-            history.restoreMock();
+            navCmpt.restoreMock();
             loadingCtrl.restoreMock();
             appAuth.resetMock();
             appSession.resetMock();
             errCtrl.resetMock();
-            history.resetMock();
+            navCmpt.resetMock();
             loadingCtrl.resetMock();
-            appAuth = null;
-            appSession = null;
-            errCtrl = null;
-            loadingCtrl = null;
-            history = null;
-            mocks = null;
         });
         it('should have a ion-page component', async () => {
             await flush(element);
@@ -107,7 +101,7 @@ describe('app-login', () => {
             await element.initMocks(mocks);
             await element.isServersConnected();
             expect(errCtrl.getMessageMock()).toEqual("Application Server not connected");                    
-            expect(history.getPathMock()).toEqual('/');
+            expect(navCmpt.getPageMock()).toEqual('app-page');
         });
         it('should return status 200 when servers are connected', async () => {
             await flush(element);
@@ -150,13 +144,13 @@ describe('app-login', () => {
             await flush(element);
             await element.initMocks(mocks);
             await element.handleRegister('a');
-            expect(history.getPathMock()).toEqual('/register');
+            expect(navCmpt.getPageMock()).toEqual('app-register');
         });
         it('should return status 401 when the username and or the password do not exist in couchDB', async () => {
             await flush(element);
             await element.initMocks(mocks);
             element.setUser('paul','Test13')
-            appAuth.responseMock({"status":401, "message":"Unauthorized: Invalid Username or Password"})
+            await appAuth.responseMock({"status":401, "message":"Unauthorized: Invalid Username or Password"})
             await element.handleSubmit();
             expect(errCtrl.getMessageMock()).toEqual("Unauthorized: Invalid Username or Password");                    
         });
@@ -179,7 +173,8 @@ describe('app-login', () => {
             element.setUser('jeep','Test12')
             appAuth.responseMock({"status":200,result:session})
             await element.handleSubmit();
-            expect(history.getPathMock()).toEqual('/home/connected');
+            expect(navCmpt.getPageMock()).toEqual('app-home');
+            expect(navCmpt.getDataMock()).toEqual({mode:'connected'});        
         });
     });
 });

@@ -47,13 +47,12 @@ export class AppPouchDB {
     @Method()
     initDatabase(pouchDBName:string,remoteDB?: string,options?:PDBOptions ): Promise<any> {
         return new Promise<any>(async (resolve) => {
-            await this._initDesignDocs();
-
             const dbName: string = pouchDBName.length > 0 ? pouchDBName : null;
             this._remote = remoteDB ? remoteDB : null;
             const opts:PDBOptions = options !== null ? options : null;
             const adapt: string = opts !== null ? opts.adapter : 'idb';
             const pDB: any = opts !== null ? opts.pouchDB : PouchDB;
+            const ddoc: boolean = opts !== null ? opts.designDocs : true;
             if(dbName !== null) {
                 this._db = new pDB(dbName, {
                     auto_compaction: true,
@@ -61,7 +60,7 @@ export class AppPouchDB {
                 });
                 if(this._db !== null) {
                     // check if design documents exist, if not create them
-                    this.checkDesignDocuments();
+                    if(ddoc) await this.checkDesignDocuments();
                     // deal with remote syncing CouchDB => PouchDB => CouchDB
                     if(this._isServerDB && this._remote !== null) {
                         this.initRemoteSync(this._remote);
@@ -177,11 +176,12 @@ export class AppPouchDB {
         }));
     }
     async componentWillLoad() {
-        this.initDesignDocuments().then(() => {
-        });
+        await this.initDesignDocuments();
     }
     _initDesignDocs(): Promise<void> {
         return new Promise<any> ((resolve) => {
+            this._designDocs = [];
+            this._isDesignDocs = [];
             for (let i:number = 0;i < DESIGN_DOCS.length;i++) {
             this._designDocs = [...this._designDocs,JSON.parse(DESIGN_DOCS[i])];
             this._isDesignDocs = [...this._isDesignDocs,false];
@@ -190,26 +190,26 @@ export class AppPouchDB {
         });
     }
     async _checkDesignDocuments(): Promise<void> {
-        let tmp: Array<boolean> = [];
+        let tmp:boolean;
         for (let i:number = 0;i < this._isDesignDocs.length;i++) {
             if(!this._isDesignDocs[i]) {
+                this._isDesignDocs.splice(i,1);
                 let res = await this.getDoc(this._designDocs[i]._id);
                 if(res.status === 409) {
                     let result = await this.createDoc(this._designDocs[i]);
                     if(result.ok) {
-                        tmp = [...tmp, true];              
+                        tmp = true;              
                     } else {
-                        tmp = [...tmp, false];                         
+                        tmp = false;                         
                     }
                 } else if (res.status === 200) {
-                    tmp = [...tmp, true];              
+                    tmp = true;              
                 } else {
-                    tmp = [...tmp, false];                                             
+                    tmp = false;                                             
                 }
+                this._isDesignDocs = [...this._isDesignDocs,tmp];
             }
-            tmp = [...tmp, true];              
         }
-        this._isDesignDocs = [...tmp];
         return Promise.resolve();
     }    
     // rendering

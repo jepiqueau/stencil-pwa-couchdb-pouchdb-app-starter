@@ -1,3 +1,6 @@
+import { mockElement } from '@stencil/core/testing';
+
+export const mockGetEl = mockElement('app-pouchdb') as HTMLElement;
 let db : any = null;
 let isServerDB: boolean = false;
 let res: any = null;
@@ -121,6 +124,7 @@ export const resetMock = jest.fn().mockReset();
 
 const mockPouchDBProvider = jest.fn().mockImplementation(() => {
     return {
+        el: mockGetEl,
         isServerDBAlive: mockIsServerDBAlive,
         setServerDB : mockSetServerDB,
         getDB: mockGetDB,

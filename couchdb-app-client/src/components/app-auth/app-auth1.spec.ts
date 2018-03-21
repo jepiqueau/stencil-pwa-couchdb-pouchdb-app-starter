@@ -51,9 +51,6 @@ describe('app-auth', () => {
             appSession.resetMock();
             appPouchDB.resetMock();
             fetchMock.resetMocks();
-            appSession = null;
-            appPouchDB = null;
-            instance = null;
         });
         it('Should return status 200 when the registration in CouchDB is successful', async () => {
             spy = jest.spyOn(appPouchDB,'initDatabase');
@@ -142,9 +139,6 @@ describe('app-auth', () => {
             spy.mockRestore();
             spys.mockReset();
             spys.mockRestore();
-            appSession = null;
-            appPouchDB = null;
-            instance = null;
         });
         it('Should return status 200 when logging out of CouchDB is successful', async () => {
             appPouchDB.responseMock({status: 200, result:'logged out'});
@@ -213,9 +207,6 @@ describe('app-auth', () => {
             appPouchDB.restoreMock();
             appSession.resetMock();
             appPouchDB.resetMock();
-            appSession = null;
-            appPouchDB = null;
-            instance = null;
         });
         it('Should return status 200 when both servers are connected', async () => {
             appPouchDB.responseMock({status: 200, message: "Server Alive"});

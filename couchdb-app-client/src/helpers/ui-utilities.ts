@@ -1,4 +1,3 @@
-import { RouterHistory } from '@stencil/router';
 import { ToastController, LoadingController, Loading } from '@ionic/core';
 import { Session } from '../global/interfaces';
 
@@ -48,12 +47,29 @@ const getConnectionProvider = async (docMock?: Document): Promise<any> => {
   let appElement: any = await getIonApp(doc);
   return  Promise.resolve(appElement ? appElement.querySelector('app-connection') : null);
 }
-const checkServersConnected = (history: RouterHistory | any, loadingCtrl: LoadingController | any,
+const getMenuController = async (docMock?: Document): Promise<any> => {
+  const doc: Document = docMock ? docMock : document;
+  const body: HTMLBodyElement = doc.querySelector('body');
+  return  Promise.resolve(body ? body.querySelector('ion-menu-controller') : null);
+}
+const getPopoverController = async (docMock?: Document): Promise<any> => {
+  const doc: Document = docMock ? docMock : null;
+  let appElement: any = await getIonApp(doc);
+  return  Promise.resolve(appElement ? appElement.querySelector('ion-popover-controller') : null);
+}
+const getNavComponent = async (docMock?: Document): Promise<any> => {
+  const doc: Document = docMock ? docMock : null;
+  let appElement: any = await getIonApp(doc);
+  return  Promise.resolve(appElement ? appElement.querySelector('#navId') : null);
+}
+
+const checkServersConnected = ( loadingCtrl: LoadingController | any,
                           comps:any, page:string,loadingMsg:string): Promise<void> => {
   return new Promise<void>(async (resolve) => {
     await presentLoading(loadingCtrl,loadingMsg);
     let session: Session = await comps.sessionProvider.getSessionData();
     let server: any = await comps.authProvider.isServersConnected();
+    if(server === null ) resolve();
     if(session === null && (server.status === 400 || 
         (server.status === 200 && !server.result.dbserver))) {
       dismissLoading().then(() => {
@@ -65,18 +81,18 @@ const checkServersConnected = (history: RouterHistory | any, loadingCtrl: Loadin
       comps.authProvider.reauthenticate(server).then((data) => {
         if(data.status === 200 && server.status === 200) {
           dismissLoading().then(() => {
+            comps.connectionProvider.setConnection('connected');
             if (page === 'page') {
-              comps.connectionProvider.setConnection('connected');
-              history.push('/home/connected', {});
+              comps.navCmpt.setRoot('app-home',{mode:'connected'});
             }
             resolve();
           });
         } else if (data.status === 200 && server.status === 400) {
           dismissLoading().then(() => {
             comps.errorCtrl.showError("Working Offline").then(() => {
+              comps.connectionProvider.setConnection('offline');
               if (page === 'page') {
-                comps.connectionProvider.setConnection('offline');
-                history.push('/home/offline', {});
+                comps.navCmpt.setRoot('app-home',{mode:'offline'});
               }
               resolve();
             });
@@ -84,7 +100,7 @@ const checkServersConnected = (history: RouterHistory | any, loadingCtrl: Loadin
         } else if(server.status === 200) {
           dismissLoading().then(() => {
             comps.errorCtrl.showError(data.message).then(() => {
-              history.push('/login', {}); 
+              comps.navCmpt.setRoot('app-login'); 
               resolve();
             });              
           });
@@ -102,6 +118,9 @@ const initializeMocks = (components:any,mocks:any): Promise<void> => {
     if(components.errorCtrl) components.errorCtrl = mocks.errorCtrl;
     if(components.loadingCtrl) components.loadingCtrl = mocks.loadingCtrl;
     if(components.connectionProvider) components.connectionProvider = mocks.connectionProvider;
+    if(components.menuCtrl) components.menuCtrl = mocks.menuCtrl;
+    if(components.popoverCtrl) components.popoverCtrl = mocks.popoverCtrl;
+    if(components.navCmpt) components.navCmpt = mocks.navCmpt;
     resolve();
   });
 }
@@ -118,10 +137,18 @@ const initializeComponents = (components:any,docMock?: Document):Promise<void> =
     if(components.pouchDBProvider && components.pouchDBProvider === null) components.errorCtrl.showError('Error: No PouchDB Provider');
     if(components.connectionProvider) components.connectionProvider = await getConnectionProvider(doc);
     if(components.connectionProvider && components.connectionProvider === null) components.errorCtrl.showError('Error: No Connection Provider');
+    if(components.menuCtrl) components.menuCtrl = await getMenuController(doc);
+    if(components.menuCtrl && components.menuCtrl === null) components.errorCtrl.showError('Error: No Menu Controller');
+    if(components.popoverCtrl) components.popoverCtrl = await getPopoverController(doc);
+    if(components.popoverCtrl && components.popoverCtrl === null) components.errorCtrl.showError('Error: No Menu Controller');
+    if(components.navCmpt) components.navCmpt = await getNavComponent(doc);
+    if(components.navCmpt && components.navCmpt === null) components.errorCtrl.showError('Error: No Nav Component');
+
     resolve();
   }); 
 }
 export { showToast, presentLoading, dismissLoading, getPouchDBProvider, 
         getErrorController, getAuthProvider, getSessionProvider,
         checkServersConnected, initializeMocks,initializeComponents,
-        getIonApp, getConnectionProvider}
+        getIonApp, getConnectionProvider,getMenuController,
+        getPopoverController, getNavComponent}

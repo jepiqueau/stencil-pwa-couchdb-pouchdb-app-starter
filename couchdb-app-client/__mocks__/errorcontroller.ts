@@ -1,3 +1,6 @@
+import { mockElement } from '@stencil/core/testing';
+
+export const mockGetEl = mockElement('app-error') as HTMLElement;
 let message:string = null;
 
 export const mockShowError = jest.fn().mockImplementation((msg:string) => {
@@ -19,6 +22,7 @@ export const resetMock = jest.fn().mockReset();
 
 const mockErrorController = jest.fn().mockImplementation(() => {
     return {
+        el: mockGetEl,
         showError: mockShowError,
         responseMock: responseMock,
         getMessageMock: getMessageMock,

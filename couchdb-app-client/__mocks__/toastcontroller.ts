@@ -1,4 +1,8 @@
+import { mockElement } from '@stencil/core/testing';
 import ToastMock from './toast';
+
+export const mockGetEl = mockElement('ion-toast-controller') as HTMLElement;
+
 let toast: any = null;
 
 export const mockCreate = jest.fn().mockImplementation((message, duration) => {
@@ -18,6 +22,7 @@ export const resetMock = jest.fn().mockReset();
 
 const mockToastController = jest.fn().mockImplementation(() => {
     return {
+        el: mockGetEl,
         create: mockCreate,
         getToastMock: getToastMock,
         restoreMock: restoreMock,

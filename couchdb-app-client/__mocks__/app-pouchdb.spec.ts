@@ -48,10 +48,12 @@ describe('app-pouchDBMock', () => {
     afterEach(async () => {
         appPouchDB.restoreMock();
         appPouchDB.resetMock();
-        appPouchDB = null;
     });
     it('should build', () => {
         expect(appPouchDB).toBeTruthy();
+    });
+    it('When appPouchDB created show have el= app-pouchdb', () => {
+        expect(appPouchDB.el.tagName).toEqual('APP-POUCHDB');
     });
     it('should not create a doc', async () => {
         appPouchDB.responseMock({createDoc:'Error: No News document created'});

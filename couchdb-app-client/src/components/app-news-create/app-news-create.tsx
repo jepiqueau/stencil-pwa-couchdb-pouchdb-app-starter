@@ -1,5 +1,4 @@
 import { Component, Element, State, Prop, Method } from '@stencil/core';
-import { RouterHistory } from '@stencil/router';
 import { LoadingController } from '@ionic/core';
 import { nFirstWords, getDateISOString } from '../../helpers/utils';
 import { initializeComponents, initializeMocks, checkServersConnected } from '../../helpers/ui-utilities';
@@ -12,27 +11,22 @@ import { ELLIPSIS_NUMBER_WORDS } from '../../global/constants';
 export class AppNewsCreate {
 
   @Element() el: HTMLElement;
-  @State() isRender: boolean;
   @State() title: string = '';
   @State() content: string = '';
   @State() author: string = '';
-  @Prop() history: RouterHistory;
   @Prop({ connect: 'ion-loading-controller' }) loadingCtrl: LoadingController;
 
   @Method()
   initMocks(mocks:any): Promise<void> {
       // used for unit testing only
-      this._pageNews = 'news-create';
-      this.isRender = true;
-      this._history = mocks.history;
       this._loadingCtrl = mocks.loadingCtrl;
       this._comps = { authProvider:true,sessionProvider:true,pouchDBProvider:true,
-                      errorCtrl:true,connectionProvider:true} 
+                      errorCtrl:true,connectionProvider:true,navCmpt:true} 
       return initializeMocks(this._comps,mocks);
   }
   @Method()
   isServersConnected(): Promise<void> {
-      return checkServersConnected(this._history,this._loadingCtrl,this._comps,'news-create','Authenticating ...');
+      return checkServersConnected(this._loadingCtrl,this._comps,'news-create','Authenticating ...');
   }
   @Method()
   handleSubmit(): Promise<void> {
@@ -56,22 +50,16 @@ export class AppNewsCreate {
   private _content: HTMLElement;
   private _button: HTMLElement;
   private _comps:any;
-  private _history: RouterHistory | any;
   private _loadingCtrl : LoadingController | any;
-  private _pageNews: string;
 
 
   componentWillLoad() {
-    this.isRender = false;
-    this._pageNews = 'news-create';
-    this._history = this.history;
     this._loadingCtrl = this.loadingCtrl;
     this._comps = { authProvider:true,sessionProvider:true,pouchDBProvider:true,
-                    errorCtrl:true,connectionProvider:true} 
+                    errorCtrl:true,connectionProvider:true,navCmpt:true} 
     initializeComponents(this._comps).then(async () => {
         if(this._comps.authProvider != null && this._comps.sessionProvider != null) {
             this.isServersConnected().then (()=> {
-              this.isRender = true;         
             })         
           }                        
     });
@@ -196,13 +184,9 @@ export class AppNewsCreate {
 
   // rendering
   render() {
-    if(this.isRender) {
-      this._pageNews += '/'+this._comps.connectionProvider.getConnection();
-    }
     return (
       <ion-page>
         <app-header menu></app-header>
-        <app-menu page={this._pageNews}></app-menu>
         <ion-content>
           <div id='news-create-card' class='card'>
             <div class="form-container">

@@ -4,14 +4,14 @@ import AppAuthMock from '../../../__mocks__/app-auth';
 import AppSessionMock from '../../../__mocks__/app-session';
 import ErrCtrlMock from '../../../__mocks__/errorcontroller';
 import LoadingCtrlMock from '../../../__mocks__/loadingcontroller';
-import HistoryRouterMock from '../../../__mocks__/historyrouter';
+import NavCmptMock from '../../../__mocks__/nav';
 import { Session } from '../../global/interfaces';
 import { ERROR_NAME, ERROR_EMAIL, ERROR_USERNAME, ERROR_PASSWORD } from '../../global/constants';
 
 let appSession: any;
 let appAuth: any;
 let errCtrl: any;
-let history: any;
+let navCmpt: any;
 let loadingCtrl: any;
 describe('app-register', () => {
     it('should build', () => {
@@ -31,13 +31,13 @@ describe('app-register', () => {
             appSession = new AppSessionMock();
             errCtrl = new ErrCtrlMock();
             loadingCtrl = new LoadingCtrlMock();
-            history = new HistoryRouterMock();
+            navCmpt = new NavCmptMock();
             mocks = {
                 authProvider:appAuth,
                 sessionProvider:appSession,
                 errorCtrl:errCtrl,
                 loadingCtrl:loadingCtrl,
-                history:history 
+                navCmpt:navCmpt
             }
             session = {
                 user_id: 'joesmith',
@@ -57,19 +57,13 @@ describe('app-register', () => {
             appAuth.restoreMock();
             appSession.restoreMock();
             errCtrl.restoreMock();
-            history.restoreMock();
+            navCmpt.restoreMock();
             loadingCtrl.restoreMock();
             appAuth.resetMock();
             appSession.resetMock();
             errCtrl.resetMock();
-            history.resetMock();
+            navCmpt.resetMock();
             loadingCtrl.resetMock();
-            appAuth = null;
-            appSession = null;
-            errCtrl = null;
-            loadingCtrl = null;
-            history = null;
-            mocks = null;
         });
         it('should have a ion-page component', async () => {
             await flush(element);
@@ -115,7 +109,7 @@ describe('app-register', () => {
             await element.initMocks(mocks);
             await element.isServersConnected();
             expect(errCtrl.getMessageMock()).toEqual("Application Server not connected");                    
-            expect(history.getPathMock()).toEqual('/');
+            expect(navCmpt.getPageMock()).toEqual('app-page');
         });
         it('should return status 200 when servers are connected', async () => {
             await flush(element);
@@ -178,7 +172,8 @@ describe('app-register', () => {
         });
         it('should return successful when email input valid and not existing in CouchDB', async () => {
             await flush(element);
-            appAuth.responseMock({"status":200})
+            let server:any = {status:200,result:{server:true,dbserver:true}};
+            appAuth.responseMock(server);
             await element.initMocks(mocks);
             await element.handleChangeEmail('jeep@example.com',10);
             await flush(element);
@@ -204,7 +199,8 @@ describe('app-register', () => {
         });
         it('should return successful when username input is valid and not existing in CouchDB', async () => {
             await flush(element);
-            appAuth.responseMock({"status":200})
+            let server:any = {status:200,result:{server:true,dbserver:true}};
+            appAuth.responseMock(server);
             await element.initMocks(mocks);
             await element.handleChangeUsername('jeep',10);
             let input:HTMLInputElement = element.querySelector('#username');
@@ -262,7 +258,8 @@ describe('app-register', () => {
         });
         it('should return button visibility to true when all inputs filled in', async () => {
             await flush(element);
-            appAuth.responseMock({"status":200})
+            let server:any = {status:200,result:{server:true,dbserver:true}};
+            appAuth.responseMock(server);
             await element.initMocks(mocks);
             await element.handleChangeName('Colin Smith',10);
             await element.handleChangeEmail('colinsmith@example.com',10);
@@ -285,7 +282,7 @@ describe('app-register', () => {
             await element.handleChangePassword('Test12',10);
             await element.handleChangeConfirmPassword('Test12',10);
             await element.handleSubmit();
-            expect(history.getPathMock()).toEqual('/home/connected');
+            expect(navCmpt.getPageMock()).toEqual('app-home');
         });
         it('should display error when clicking on "Create your account" button when all inputs filled in and CouchDB error', async () => {
             await flush(element);

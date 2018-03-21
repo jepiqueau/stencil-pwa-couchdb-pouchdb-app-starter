@@ -5,7 +5,7 @@ import AppSessionMock from '../../../__mocks__/app-session';
 import ErrCtrlMock from '../../../__mocks__/errorcontroller';
 import AppConnMock from '../../../__mocks__/app-connection';
 import LoadingCtrlMock from '../../../__mocks__/loadingcontroller';
-import HistoryRouterMock from '../../../__mocks__/historyrouter';
+import NavCmptMock from '../../../__mocks__/nav';
 import { Session } from '../../global/interfaces';
 
 let appSession: any;
@@ -13,7 +13,8 @@ let appAuth: any;
 let appConn: any;
 let errCtrl: any;
 let loadingCtrl: any;
-let history: any;
+let navCmpt: any;
+
 let spy: jest.SpyInstance<any>;
 let spyS: jest.SpyInstance<any>;
 let spyR: jest.SpyInstance<any>;
@@ -62,36 +63,29 @@ describe('app-page', () => {
             appConn = new AppConnMock();
             errCtrl = new ErrCtrlMock();
             loadingCtrl = new LoadingCtrlMock();
-            history = new HistoryRouterMock();
+            navCmpt = new NavCmptMock();
             mocks = {
                 authProvider:appAuth,
                 sessionProvider:appSession,
                 connectionProvider:appConn,
                 errorCtrl:errCtrl,
                 loadingCtrl:loadingCtrl,
-                history:history 
+                navCmpt:navCmpt
             }
         });
-        afterEach(async() => {
-            appAuth.restoreMock();
-            appSession.restoreMock();
+        afterEach(() => {
             appConn.restoreMock();
             errCtrl.restoreMock();
-            loadingCtrl.restoreMock();
-            history.restoreMock();
-            appAuth.resetMock();
-            appSession.resetMock();
-            appConn.resetMock();
             errCtrl.resetMock();
+            loadingCtrl.restoreMock();
             loadingCtrl.resetMock();
-            history.resetMock();
-            appAuth = null;
-            appSession = null;
-            appConn = null;
-            errCtrl = null;
-            loadingCtrl = null;
-            history = null;
-            mocks = null;
+            navCmpt.restoreMock();
+            appConn.resetMock();
+            navCmpt.resetMock();
+//            appAuth.restoreMock();
+            appAuth.resetMock();
+            appSession.restoreMock();
+            appSession.resetMock();
         });
         it('should have a ion-page component', async () => {
             await flush(element);
@@ -132,79 +126,97 @@ describe('app-page', () => {
             let text: HTMLElement = div.querySelector('h2');
             expect(text.textContent).toEqual('Welcome to the Jeep PouchDB Application Starter');
         });
-        it('should return status 400 when server disconnected and session null', async () => {
+        it('should return status 400 when server disconnected and session null', async (done) => {
             await flush(element);
             defineSpys();
             appAuth.responseMock({status:400,message:'Application Server not connected'});
-            await element.initMocks(mocks);
-            await element.isServersConnected();
-                expect(spy).toHaveBeenCalled();                
-                expect(spyS).toHaveBeenCalled();                
-                expect(spyR).not.toHaveBeenCalled();                
-                expect(spyE).toHaveBeenCalled();                
-                expect(errCtrl.getMessageMock()).toEqual("Application Server not connected");                    
-                resetSpys();
+            element.initMocks(mocks).then(() => {
+                element.isServersConnected().then(() => {
+                    expect(spy).toHaveBeenCalled();                
+                    expect(spyS).toHaveBeenCalled();                
+                    expect(spyR).not.toHaveBeenCalled();                
+                    expect(spyE).toHaveBeenCalled();                
+                    resetSpys();
+                    expect(errCtrl.getMessageMock()).toEqual("Application Server not connected");                    
+                    done();
+                });
+            });
 
         });
-        it('should return status 400 when Application server connected DBServer disconnected and session null', async () => {
+        it('should return status 400 when Application server connected DBServer disconnected and session null', async (done) => {
             await flush(element);
             defineSpys();
             let server:any = {status:200,result:{server:true,dbserver:false}};
             appAuth.responseMock(server);
-            await element.initMocks(mocks);
-            await element.isServersConnected();
-            expect(spy).toHaveBeenCalled();                
-            expect(spyS).toHaveBeenCalled();                
-            expect(spyR).not.toHaveBeenCalled();                
-            expect(spyE).toHaveBeenCalled();                
-            expect(errCtrl.getMessageMock()).toEqual("Application Server not connected");                    
-            resetSpys();
-
+            element.initMocks(mocks).then(() => {
+                element.isServersConnected().then(() => {
+                    expect(spy).toHaveBeenCalled();                
+                    expect(spyS).toHaveBeenCalled();                
+                    expect(spyR).not.toHaveBeenCalled();                
+                    expect(spyE).toHaveBeenCalled();                
+                    resetSpys();
+                    expect(errCtrl.getMessageMock()).toEqual("Application Server not connected");                    
+                    done();
+                });
+            });
         });
-        it('should return status 200 when servers are connected and session exists', async () => {
+        it('should return status 200 when servers are connected and session exists', async (done) => {
             await flush(element);
             let server:any = {status:200,result:{server:true,dbserver:true}};
-            await appSession.saveSessionData(session);
+            appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
             appAuth.responseMock(server);
-            await element.initMocks(mocks);
-            await element.isServersConnected();
-            expect(history.getPathMock()).toEqual('/home/connected');
+            element.initMocks(mocks).then(() => {
+                element.isServersConnected().then(() => {
+                    expect(navCmpt.getPageMock()).toEqual('app-home');
+                    expect(navCmpt.getDataMock()).toEqual({mode:'connected'});        
+                    done();
+                });
+            });
         });
-        it('should return status 200 when servers are disconnected and session exists', async () => {
+        it('should return status 200 when servers are disconnected and session exists', async (done) => {
             await flush(element);
             let server:any = {status:400,message:'Application Server not connected'};
-            appAuth.dataReauthenticateMock({status:200});
-            appSession.saveSessionData(session);
-            appAuth.responseMock(server);
-            await element.initMocks(mocks);
-            await element.isServersConnected();
-            expect(history.getPathMock()).toEqual('/home/offline');
-            expect(errCtrl.getMessageMock()).toEqual("Working Offline");                    
-            resetSpys();
+            element.initMocks(mocks).then(() => {
+                appAuth.dataReauthenticateMock({status:200});
+                appSession.saveSessionData(session);
+                appAuth.responseMock(server);
+                element.isServersConnected().then(() => {
+                    expect(navCmpt.getPageMock()).toEqual('app-home');
+                    expect(navCmpt.getDataMock()).toEqual({mode:'offline'});        
+                    expect(errCtrl.getMessageMock()).toEqual("Working Offline");                    
+                    done();
+                });
+            });
         });
-        it('should return status 400 when servers are connected and session expired', async () => {
+        it('should return status 400 when servers are connected and session expired', async (done) => {
             await flush(element);
             let server:any = {status:200,result:{server:true,dbserver:true}};
             session.issued = 1517680659920;
             session.expires = 1517767059920;
-            await appSession.saveSessionData(session);
-            appAuth.dataReauthenticateMock({status:400,message: 'Session expired'});
-            appAuth.responseMock(server);
-            await element.initMocks(mocks);
-            await element.isServersConnected();
-            expect(history.getPathMock()).toEqual('/login');
-            expect(errCtrl.getMessageMock()).toEqual("Session expired");                    
+            element.initMocks(mocks).then(() => {
+                appSession.saveSessionData(session);
+                appAuth.dataReauthenticateMock({status:400,message: 'Session expired'});
+                appAuth.responseMock(server);
+                element.isServersConnected().then(() => {
+                    expect(navCmpt.getPageMock()).toEqual('app-login');
+                    expect(errCtrl.getMessageMock()).toEqual("Session expired");                    
+                    done();
+                });
+            });
         });
-        it('should return status 400 when servers are connected and no session opended', async () => {
+        it('should return status 400 when servers are connected and no session opended', async (done) => {
             await flush(element);
             let server:any = {status:200,result:{server:true,dbserver:true}};
-            appAuth.dataReauthenticateMock({status:400,message: 'No session opened'});
-            appAuth.responseMock(server);
-            await element.initMocks(mocks);
-            await element.isServersConnected();
-            expect(history.getPathMock()).toEqual('/login');
-            expect(errCtrl.getMessageMock()).toEqual("No session opened");                    
+            element.initMocks(mocks).then(() => {
+                appAuth.dataReauthenticateMock({status:400,message: 'No session opened'});
+                appAuth.responseMock(server);
+                element.isServersConnected().then(() => {
+                    expect(navCmpt.getPageMock()).toEqual('app-login');
+                    expect(errCtrl.getMessageMock()).toEqual("No session opened");                    
+                    done();
+                });
+            });
         });
     });
 });

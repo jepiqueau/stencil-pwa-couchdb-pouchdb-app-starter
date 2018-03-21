@@ -28,7 +28,8 @@ describe('app-pouchdb', () => {
             instance = new AppPouchDB();
             options = {
                 pouchDB: PouchDB,
-                adapter: 'memory'
+                adapter: 'memory',
+                designDocs: false
             };
         });
         afterEach(async () => {
@@ -264,11 +265,12 @@ describe('app-pouchdb', () => {
             expect(result.ok).toBeTruthy();
             expect(result.text).toEqual(textAttachement);
         });      
-        it('Should check if design documents are in db', async () => {
+        it('Should check if design documents are in db', async (done) => {
             await instance.initDatabase(POUCHDB_NAME,null,options);
             await instance.initDesignDocuments();
             instance.checkDesignDocuments().then(() => {
                 expect(instance.getIsDesignDocs()).toEqual([true])
+                done();
             });
         });
     });

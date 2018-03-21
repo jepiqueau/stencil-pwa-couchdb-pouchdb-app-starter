@@ -1,5 +1,4 @@
 import { Component, Prop, Element, Method, State } from '@stencil/core';
-import { RouterHistory } from '@stencil/router';
 import { LoadingController } from '@ionic/core';
 import { initializeComponents, initializeMocks, presentLoading, dismissLoading } from '../../helpers/ui-utilities';
 import { User, Session, Credentials } from '../../global/interfaces'
@@ -16,14 +15,12 @@ export class AppLogin {
     private _Username: HTMLElement;
     private _Password: HTMLElement;
     private _button: HTMLElement;
-    private _history: RouterHistory | any;
     private _loadingCtrl: LoadingController | any;
     private _comps: any;
 
     @Element() el: HTMLElement;
     @State() username: string = '';
     @State() password: string = '';
-    @Prop() history: RouterHistory;
     @Prop({ connect: 'ion-loading-controller' }) loadingCtrl: LoadingController;
 
     @Method()
@@ -33,9 +30,9 @@ export class AppLogin {
     @Method()
     initMocks(mocks:any): Promise<void> {
         // used for unit testing only
-        this._history = mocks.history;
         this._loadingCtrl = mocks.loadingCtrl;
-        this._comps = {authProvider:true,sessionProvider:true,errorCtrl:true} 
+        this._comps = {authProvider:true,sessionProvider:true,errorCtrl:true,
+          connectionProvider:true,navCmpt:true};
         return initializeMocks(this._comps,mocks);
     }
     @Method()
@@ -61,9 +58,9 @@ export class AppLogin {
       return this._handleChangePassword(password);
     }
     componentWillLoad() {
-      this._history = this.history;
       this._loadingCtrl = this.loadingCtrl;
-      this._comps = {authProvider:true,sessionProvider:true,errorCtrl:true} 
+      this._comps = {authProvider:true,sessionProvider:true,errorCtrl:true,
+        connectionProvider:true,navCmpt:true};
       initializeComponents(this._comps).then(async () => {
           if(this._comps.authProvider != null && this._comps.sessionProvider != null) {
               await this.isServersConnected()          
@@ -82,7 +79,7 @@ export class AppLogin {
         this._comps.authProvider.isServersConnected().then((server)=> {
             if (server.status != 200) {
               this._comps.errorCtrl.showError("Application Server not connected").then(() => {
-                this._history.push('/', {});
+                this._comps.navCmpt.setRoot('app-page');
                 });        
             }
             resolve();      
@@ -162,7 +159,7 @@ export class AppLogin {
               let session:Session = res.result;
               this._comps.sessionProvider.saveSessionData(session);
               dismissLoading().then(() => {
-                this._history.push('/home/connected', {});
+                this._comps.navCmpt.setRoot('app-home',{mode:'connected'});
               });           
             }
           } else {
@@ -177,7 +174,7 @@ export class AppLogin {
     }
     _handleRegister(tag:string): Promise<void> {
         if(tag === 'a') {
-          this._history.push('/register', {});
+          this._comps.navCmpt.setRoot('app-register');
         }
         return Promise.resolve(); 
     }

@@ -12,20 +12,20 @@ describe('connectionprovider', () => {
     it('should create an Connection Provider', () => {
         expect(connProv).toBeDefined;
     });
-    it('should set the connection to connected', () => {
+    it('should set the connection to connected', async () => {
         connProv.setConnection('connected');
-        expect(connProv.getConnection()).toEqual('connected');
+        expect(await connProv.getConnection()).toEqual('connected');
     });
-    it('should get the connection as connected', () => {
+    it('should get the connection as connected', async () => {
         connProv.setConnection('connected');
-        expect(connProv.getConnection()).toEqual('connected');
+        expect(await connProv.getConnection()).toEqual('connected');
     });
-    it('should set the connection to offline', () => {
+    it('should set the connection to offline', async () => {
         connProv.setConnection('offline');
-        expect(connProv.getConnection()).toEqual('offline');
+        expect(await connProv.getConnection()).toEqual('offline');
     });
-    it('should get the connection as offline', () => {
+    it('should get the connection as offline', async () => {
         connProv.setConnection('offline');
-        expect(connProv.getConnection()).toEqual('offline');
+        expect(await connProv.getConnection()).toEqual('offline');
     });
 });

@@ -6,7 +6,7 @@ import AppPouchDBMock from '../../../__mocks__/app-pouchdb';
 import AppConnMock from '../../../__mocks__/app-connection';
 import ErrCtrlMock from '../../../__mocks__/errorcontroller';
 import LoadingCtrlMock from '../../../__mocks__/loadingcontroller';
-import HistoryRouterMock from '../../../__mocks__/historyrouter';
+import NavCmptMock from '../../../__mocks__/nav';
 import { Session } from '../../global/interfaces';
 
 describe('app-news-create', () => {
@@ -22,7 +22,7 @@ describe('app-news-create', () => {
         let appAuth: any;
         let appConn:any;
         let errCtrl: any;
-        let history: any;
+        let navCmpt: any;
         let loadingCtrl: any;
         let mocks: any;
         let session: Session = {
@@ -50,40 +50,32 @@ describe('app-news-create', () => {
             appConn = new AppConnMock();
             errCtrl = new ErrCtrlMock();
             loadingCtrl = new LoadingCtrlMock();
-            history = new HistoryRouterMock();
+            navCmpt = new NavCmptMock();
             mocks = {
                 authProvider:appAuth,
                 sessionProvider:appSession,
                 pouchDBProvider:appPouchDB,
                 errorCtrl:errCtrl,
                 loadingCtrl:loadingCtrl,
-                history:history,
+                navCmpt:navCmpt,
                 connectionProvider: appConn 
             }
         });
         afterEach(async () => {
-            appAuth.restoreMock();
+//            appAuth.restoreMock();
             appSession.restoreMock();
             appPouchDB.restoreMock();
             appConn.restoreMock();
             errCtrl.restoreMock();
-            history.restoreMock();
+            navCmpt.restoreMock();
             loadingCtrl.restoreMock();
             appAuth.resetMock();
             appSession.resetMock();
             appPouchDB.resetMock();
             appConn.resetMock();
             errCtrl.resetMock();
-            history.resetMock();
+            navCmpt.resetMock();
             loadingCtrl.resetMock();
-            appAuth = null;
-            appSession = null;
-            appPouchDB = null;
-            appConn = null;
-            errCtrl = null;
-            loadingCtrl = null;
-            history = null;
-            mocks = null;
             
         });
         it('should have a ion-page component', async () => {
@@ -94,11 +86,6 @@ describe('app-news-create', () => {
             await flush(element);
             let header: HTMLElement = page.querySelector('app-header');
             expect(header).not.toBeNull();
-        });
-        it('should have an app-menu component', async () => {
-            await flush(element);
-            let menu: HTMLElement = page.querySelector('app-menu');
-            expect(menu).not.toBeNull();
         });
         it('should have an ion-content component', async () => {
             await flush(element);
@@ -148,154 +135,282 @@ describe('app-news-create', () => {
             await element.isServersConnected();
             expect(errCtrl.getMessageMock()).toEqual("Application Server not connected");                    
         });
-        it('should return status 200 when servers are connected and session exists', async () => {
+        it('should return status 200 when servers are connected and session exists', async (done) => {
             await flush(element);
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
             appAuth.responseMock(server);
-            await element.initMocks(mocks);
-            await element.isServersConnected();
-            expect(history.getPathMock()).toBeNull();
+            element.initMocks(mocks).then(() => {
+                element.isServersConnected().then(() => {
+                    expect(navCmpt.getPageMock()).toBeNull;
+                    done();
+                });
+            });
         });
-        it('should return status 200 when servers are disconnected and session exists', async () => {
+        it('should return status 200 when servers are disconnected and session exists', async (done) => {
             await flush(element);
             let server:any = {status:400,message:'Application Server not connected'};
-            appAuth.dataReauthenticateMock({status:200});
-            appSession.saveSessionData(session);
-            appAuth.responseMock(server);
-            await element.initMocks(mocks);
-            await element.isServersConnected();
-            expect(history.getPathMock()).toBeNull();
-            expect(errCtrl.getMessageMock()).toEqual("Working Offline");                    
+            element.initMocks(mocks).then(() => {
+                appAuth.dataReauthenticateMock({status:200});
+                appSession.saveSessionData(session);
+                appAuth.responseMock(server);
+                element.isServersConnected().then(() => {
+                    expect(navCmpt.getPageMock()).toBeNull;
+                    expect(errCtrl.getMessageMock()).toEqual("Working Offline");                    
+                    done();
+                });
+            });
         });
-        it('should return status 400 when servers are connected and session expired', async () => {
+        it('should return status 400 when servers are connected and session expired', async (done) => {
             await flush(element);
             let server:any = {status:200,result:{server:true,dbserver:true}};
             session.issued = 1517680659920;
             session.expires = 1517767059920;
-            await appSession.saveSessionData(session);
-            appAuth.dataReauthenticateMock({status:400,message: 'Session expired'});
-            appAuth.responseMock(server);
-            await element.initMocks(mocks);
-            await element.isServersConnected();
-            expect(history.getPathMock()).toEqual('/login');
-            expect(errCtrl.getMessageMock()).toEqual("Session expired");                    
+            element.initMocks(mocks).then(() => {
+                appSession.saveSessionData(session);
+                appAuth.dataReauthenticateMock({status:400,message: 'Session expired'});
+                appAuth.responseMock(server);
+                element.isServersConnected().then(() => {
+                    expect(navCmpt.getPageMock()).toEqual('app-login');
+                    expect(errCtrl.getMessageMock()).toEqual("Session expired");                    
+                    done();
+                });
+            });
         });
-        it('should return status 400 when servers are connected and no session opended', async () => {
+        it('should return status 400 when servers are connected and no session opended', async (done) => {
             await flush(element);
             let server:any = {status:200,result:{server:true,dbserver:true}};
-            appAuth.dataReauthenticateMock({status:400,message: 'No session opened'});
-            appAuth.responseMock(server);
-            await element.initMocks(mocks);
-            await element.isServersConnected();
-            expect(history.getPathMock()).toEqual('/login');
-            expect(errCtrl.getMessageMock()).toEqual("No session opened");                    
+            element.initMocks(mocks).then(() => {
+                appAuth.dataReauthenticateMock({status:400,message: 'No session opened'});
+                appAuth.responseMock(server);
+                element.isServersConnected().then(() => {
+                    expect(navCmpt.getPageMock()).toEqual('app-login');
+                    expect(errCtrl.getMessageMock()).toEqual("No session opened");                    
+                    done();
+                });
+            });
         });
-        it('should not validated the title if null', async () => {
+        it('should not validated the title if null', async (done) => {
             await flush(element);
-            let titleEl: HTMLElement = element.querySelector('#title');
-            await element.handleChangeNewsTitle('');
-            expect(titleEl.classList.contains('validated')).toBeFalsy();
+            let server:any = {status:200,result:{server:true,dbserver:true}};
+            await appSession.saveSessionData(session);
+            appAuth.dataReauthenticateMock({status:200});
+            appAuth.responseMock(server);
+            element.initMocks(mocks).then(() => {
+                element.isServersConnected().then(async () => {
+                    let titleEl: HTMLElement = element.querySelector('#title');
+                    await element.handleChangeNewsTitle('');
+                    expect(titleEl.classList.contains('validated')).toBeFalsy();
+                    done();
+                });
+            });
         });        
-        it('should validated the title if not null', async () => {
+        it('should validated the title if not null', async (done) => {
             await flush(element);
-            let titleEl: HTMLElement = element.querySelector('#title');
-            await element.handleChangeNewsTitle('First News');
-            expect(titleEl.classList.contains('validated')).toBeTruthy();
+            let server:any = {status:200,result:{server:true,dbserver:true}};
+            await appSession.saveSessionData(session);
+            appAuth.dataReauthenticateMock({status:200});
+            appAuth.responseMock(server);
+            element.initMocks(mocks).then(() => {
+                element.isServersConnected().then(async () => {
+                    let titleEl: HTMLElement = element.querySelector('#title');
+                    await element.handleChangeNewsTitle('First News');
+                    expect(titleEl.classList.contains('validated')).toBeTruthy();
+                    done();
+                });
+            });
         });        
-        it('should not validated the author if null', async () => {
+        it('should not validated the author if null', async (done) => {
             await flush(element);
-            let authorEl: HTMLElement = element.querySelector('#author');
-            await element.handleChangeNewsAuthor('');
-            expect(authorEl.classList.contains('validated')).toBeFalsy();
+            let server:any = {status:200,result:{server:true,dbserver:true}};
+            await appSession.saveSessionData(session);
+            appAuth.dataReauthenticateMock({status:200});
+            appAuth.responseMock(server);
+            element.initMocks(mocks).then(() => {
+                element.isServersConnected().then(async () => {
+                    let authorEl: HTMLElement = element.querySelector('#author');
+                    await element.handleChangeNewsAuthor('');
+                    expect(authorEl.classList.contains('validated')).toBeFalsy();
+                    done();
+                });
+            });
         });        
-        it('should validated the author if not null', async () => {
+        it('should validated the author if not null', async (done) => {
             await flush(element);
-            let authorEl: HTMLElement = element.querySelector('#author');
-            await element.handleChangeNewsAuthor('Jeep');
-            expect(authorEl.classList.contains('validated')).toBeTruthy();
+            let server:any = {status:200,result:{server:true,dbserver:true}};
+            await appSession.saveSessionData(session);
+            appAuth.dataReauthenticateMock({status:200});
+            appAuth.responseMock(server);
+            element.initMocks(mocks).then(() => {
+                element.isServersConnected().then(async () => {
+                    let authorEl: HTMLElement = element.querySelector('#author');
+                    await element.handleChangeNewsAuthor('Jeep');
+                    expect(authorEl.classList.contains('validated')).toBeTruthy();
+                    done();
+                });
+            });
         });        
-        it('should not validated the content if null', async () => {
+        it('should not validated the content if null', async (done) => {
             await flush(element);
-            let contentEl: HTMLElement = element.querySelector('#content');
-            await element.handleChangeNewsContent('');
-            expect(contentEl.classList.contains('validated')).toBeFalsy();
+            let server:any = {status:200,result:{server:true,dbserver:true}};
+            await appSession.saveSessionData(session);
+            appAuth.dataReauthenticateMock({status:200});
+            appAuth.responseMock(server);
+            element.initMocks(mocks).then(() => {
+                element.isServersConnected().then(async () => {
+                    let contentEl: HTMLElement = element.querySelector('#content');
+                    await element.handleChangeNewsContent('');
+                    expect(contentEl.classList.contains('validated')).toBeFalsy();
+                    done();
+                });
+            });
         });        
-        it('should validated the content if not null', async () => {
+        it('should validated the content if not null', async (done) => {
             await flush(element);
-            let contentEl: HTMLElement = element.querySelector('#content');
-            await element.handleChangeNewsContent('Hello World!');
-            expect(contentEl.classList.contains('validated')).toBeTruthy();
+            let server:any = {status:200,result:{server:true,dbserver:true}};
+            await appSession.saveSessionData(session);
+            appAuth.dataReauthenticateMock({status:200});
+            appAuth.responseMock(server);
+            element.initMocks(mocks).then(() => {
+                element.isServersConnected().then(async () => {
+                    let contentEl: HTMLElement = element.querySelector('#content');
+                    await element.handleChangeNewsContent('Hello World!');
+                    expect(contentEl.classList.contains('validated')).toBeTruthy();
+                    done();
+                });
+            });
         });        
-        it('should not have the button visible when title,author and content are null', async () => {
+        it('should not have the button visible when title,author and content are null', async (done) => {
             await flush(element);
-            let buttonEl: HTMLElement = element.querySelector('#button');
-            await element.handleChangeNewsTitle('');
-            await element.handleChangeNewsAuthor('');
-            await element.handleChangeNewsContent('');
-            expect(buttonEl.classList.contains('visible')).toBeFalsy();
+            let server:any = {status:200,result:{server:true,dbserver:true}};
+            await appSession.saveSessionData(session);
+            appAuth.dataReauthenticateMock({status:200});
+            appAuth.responseMock(server);
+            element.initMocks(mocks).then(() => {
+                element.isServersConnected().then(async () => {
+                    let buttonEl: HTMLElement = element.querySelector('#button');
+                    await element.handleChangeNewsTitle('');
+                    await element.handleChangeNewsAuthor('');
+                    await element.handleChangeNewsContent('');
+                    expect(buttonEl.classList.contains('visible')).toBeFalsy();
+                    done();
+                });
+            });
+        });
+        it('should not have the button visible when title defined and author,content are null', async (done) => {
+            await flush(element);
+            let server:any = {status:200,result:{server:true,dbserver:true}};
+            await appSession.saveSessionData(session);
+            appAuth.dataReauthenticateMock({status:200});
+            appAuth.responseMock(server);
+            element.initMocks(mocks).then(() => {
+                element.isServersConnected().then(async () => {
+                    let buttonEl: HTMLElement = element.querySelector('#button');
+                    await element.handleChangeNewsTitle('First News');
+                    await element.handleChangeNewsAuthor('');
+                    await element.handleChangeNewsContent('');
+                    expect(buttonEl.classList.contains('visible')).toBeFalsy();
+                    done();
+                });
+            });
         });        
-        it('should not have the button visible when title defined and author,content are null', async () => {
+        it('should not have the button visible when title,author defined and content is null', async (done) => {
             await flush(element);
-            let buttonEl: HTMLElement = element.querySelector('#button');
-            await element.handleChangeNewsTitle('First News');
-            await element.handleChangeNewsAuthor('');
-            await element.handleChangeNewsContent('');
-            expect(buttonEl.classList.contains('visible')).toBeFalsy();
+            let server:any = {status:200,result:{server:true,dbserver:true}};
+            await appSession.saveSessionData(session);
+            appAuth.dataReauthenticateMock({status:200});
+            appAuth.responseMock(server);
+            element.initMocks(mocks).then(() => {
+                element.isServersConnected().then(async () => {
+                    let buttonEl: HTMLElement = element.querySelector('#button');
+                    await element.handleChangeNewsTitle('First News');
+                    await element.handleChangeNewsAuthor('Jeep');
+                    await element.handleChangeNewsContent('');
+                    expect(buttonEl.classList.contains('visible')).toBeFalsy();
+                    done();
+                });
+            });
+        }); 
+        it('should have the button visible when title,author and content defined', async (done) => {
+            await flush(element);
+            let server:any = {status:200,result:{server:true,dbserver:true}};
+            await appSession.saveSessionData(session);
+            appAuth.dataReauthenticateMock({status:200});
+            appAuth.responseMock(server);
+            element.initMocks(mocks).then(() => {
+                element.isServersConnected().then(async () => {
+                    let buttonEl: HTMLElement = element.querySelector('#button');
+                    await element.handleChangeNewsTitle('First News');
+                    await element.handleChangeNewsAuthor('Jeep');
+                    await element.handleChangeNewsContent('Hello World!');
+                    expect(buttonEl.classList.contains('visible')).toBeTruthy();
+                    done();
+                });
+            });
         });        
-        it('should not have the button visible when title,author defined and content is null', async () => {
+        it('should not create the news document when clicking on the Create button', async (done) => {
             await flush(element);
-            let buttonEl: HTMLElement = element.querySelector('#button');
-            await element.handleChangeNewsTitle('First News');
-            await element.handleChangeNewsAuthor('Jeep');
-            await element.handleChangeNewsContent('');
-            expect(buttonEl.classList.contains('visible')).toBeFalsy();
-        });        
-        it('should have the button visible when title,author and content defined', async () => {
-            await flush(element);
-            let buttonEl: HTMLElement = element.querySelector('#button');
-            await element.handleChangeNewsTitle('First News');
-            await element.handleChangeNewsAuthor('Jeep');
-            await element.handleChangeNewsContent('Hello World!');
-            expect(buttonEl.classList.contains('visible')).toBeTruthy();
-        });        
-        it('should not create the news document when clicking on the Create button', async () => {
-            await flush(element);
-            appPouchDB.responseMock({createDoc:'Error: No News document created'},
+            let server:any = {status:200,result:{server:true,dbserver:true}};
+            await appSession.saveSessionData(session);
+            appAuth.dataReauthenticateMock({status:200});
+            appAuth.responseMock(server);
+            element.initMocks(mocks).then(() => {
+                element.isServersConnected().then(async () => {
+                    appPouchDB.responseMock({createDoc:'Error: No News document created'},
                     {addTextAttach:'Error: News document created with no Text Attachment'});
-            await element.initMocks(mocks);
-            let buttonEl: HTMLElement = element.querySelector('#button');
-            await element.handleChangeNewsTitle('First News');
-            await element.handleChangeNewsAuthor('Jeep');
-            await element.handleChangeNewsContent('Hello World!');
-            expect(buttonEl.classList.contains('visible')).toBeTruthy();
-            await element.handleSubmit();
-            expect(errCtrl.getMessageMock()).toEqual("Error: No News document created");                    
+                    await element.initMocks(mocks);
+                    let buttonEl: HTMLElement = element.querySelector('#button');
+                    await element.handleChangeNewsTitle('First News');
+                    await element.handleChangeNewsAuthor('Jeep');
+                    await element.handleChangeNewsContent('Hello World!');
+                    expect(buttonEl.classList.contains('visible')).toBeTruthy();
+                    await element.handleSubmit();
+                    expect(errCtrl.getMessageMock()).toEqual("Error: No News document created");                    
+                    done();
+                });
+            });
         });        
-        it('should create the news document without text attachment when clicking on the Create button', async () => {
+        it('should create the news document without text attachment when clicking on the Create button', async (done) => {
             await flush(element);
-            appPouchDB.responseMock({addTextAttach:'Error: News document created with no Text Attachment'});
-            await element.initMocks(mocks);
-            let buttonEl: HTMLElement = element.querySelector('#button');
-            await element.handleChangeNewsTitle('First News');
-            await element.handleChangeNewsAuthor('Jeep');
-            await element.handleChangeNewsContent('Hello World!');
-            expect(buttonEl.classList.contains('visible')).toBeTruthy();
-            await element.handleSubmit();
-            expect(errCtrl.getMessageMock()).toEqual("Error: News document created with no Text Attachment");                    
+            let server:any = {status:200,result:{server:true,dbserver:true}};
+            await appSession.saveSessionData(session);
+            appAuth.dataReauthenticateMock({status:200});
+            appAuth.responseMock(server);
+            element.initMocks(mocks).then(() => {
+                element.isServersConnected().then(async () => {
+                    appPouchDB.responseMock({addTextAttach:'Error: News document created with no Text Attachment'});
+                    await element.initMocks(mocks);
+                    let buttonEl: HTMLElement = element.querySelector('#button');
+                    await element.handleChangeNewsTitle('First News');
+                    await element.handleChangeNewsAuthor('Jeep');
+                    await element.handleChangeNewsContent('Hello World!');
+                    expect(buttonEl.classList.contains('visible')).toBeTruthy();
+                    await element.handleSubmit();
+                    expect(errCtrl.getMessageMock()).toEqual("Error: News document created with no Text Attachment");                    
+                    done();
+                });
+            });
         });        
-        it('should create the news document with text attachment when clicking on the Create button', async () => {
+        it('should create the news document with text attachment when clicking on the Create button', async (done) => {
             await flush(element);
-            await element.initMocks(mocks);
-            let buttonEl: HTMLElement = element.querySelector('#button');
-            await element.handleChangeNewsTitle('First News');
-            await element.handleChangeNewsAuthor('Jeep');
-            await element.handleChangeNewsContent('Hello World!');
-            expect(buttonEl.classList.contains('visible')).toBeTruthy();
-            await element.handleSubmit();
-            expect(errCtrl.getMessageMock()).toEqual("The News document has been succesfully created");                    
-        });        
+            let server:any = {status:200,result:{server:true,dbserver:true}};
+            await appSession.saveSessionData(session);
+            appAuth.dataReauthenticateMock({status:200});
+            appAuth.responseMock(server);
+            element.initMocks(mocks).then(() => {
+                element.isServersConnected().then(async () => {
+                    let buttonEl: HTMLElement = element.querySelector('#button');
+                    await element.handleChangeNewsTitle('First News');
+                    await element.handleChangeNewsAuthor('Jeep');
+                    await element.handleChangeNewsContent('Hello World!');
+                    expect(buttonEl.classList.contains('visible')).toBeTruthy();
+                    await element.handleSubmit();
+                    expect(errCtrl.getMessageMock()).toEqual("The News document has been succesfully created");                    
+                    done();
+                });
+            });
+        });
     });
 });
 

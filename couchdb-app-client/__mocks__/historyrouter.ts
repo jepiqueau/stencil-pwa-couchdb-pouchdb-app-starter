@@ -1,3 +1,7 @@
+import { mockElement } from '@stencil/core/testing';
+
+export const mockGetEl = mockElement('stencil-router') as HTMLElement;
+
 let path:any = null;
 let state:any = null;
 export const mockPush = jest.fn().mockImplementation((epath:any,estate:any) => {
@@ -18,6 +22,7 @@ export const resetMock = jest.fn().mockReset();
 
 const mockHistoryRouter = jest.fn().mockImplementation(() => {
     return {
+        el: mockGetEl,
         push: mockPush,
         getPathMock : getPathMock,
         getStateMock : getStateMock,

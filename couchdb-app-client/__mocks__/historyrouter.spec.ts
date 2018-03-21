@@ -9,7 +9,6 @@ describe('historyrouter', () => {
     afterEach(() => {
         history.restoreMock();
         history.resetMock();
-        history = null;        
     });
     it('should create an HistoryRouter from mock', () => {
         expect(history).toBeDefined;

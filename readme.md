@@ -18,8 +18,9 @@ This project is a Beta release and has only been tested with CouchDB and Node Ap
         . Authentication Session stored locally
         . Showing Toast message using Ionic 4 ToastController
         . Showing Loading message using Ionic 4 LoadingController
-        . Page navigation using Routing and Ionic 4 Menu and MenuController
-
+        . Page navigation using Ionic 4 Router, Nav, Menu and MenuController
+        . Page dialog using Ionic4 PopoverController and Popover
+        
 ## Getting Started
 
 clone this repo to a new directory:
@@ -119,11 +120,7 @@ with
 This problem has been reported to Superlogin and couch-pwd
 
 ### Client Application Issues
-In running the Client Application, you will see some messages in the console coming from the set-up of PouchDB the first time you log and also some messages from the MenuController and the Menu which do not avoid the application to run smoothly.
-
-ie:
-TypeError: Cannot read property 'canGoBack' of null
-TypeError: Cannot read property 'remove' of undefined
+In running the Client Application, you will see some messages in the console coming from the set-up of PouchDB the first time you log, nothing wrong.
 
 The PouchDB-browser library cannot be imported as Stencil cannot succesfully compile the application. 
 Identified Reasons:

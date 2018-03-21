@@ -1,6 +1,6 @@
 {
   "name": "pwacouchdbpouchdbclientappstarter",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Stencil PWA CouchDB-PouchDB Application Starter Client",
   "files": [
     "dist/"

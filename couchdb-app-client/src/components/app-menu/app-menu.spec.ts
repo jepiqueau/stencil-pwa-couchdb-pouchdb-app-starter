@@ -1,4 +1,6 @@
 import { render, flush } from '@stencil/core/testing';
+import { mockWindow, mockDocument } from '@stencil/core/testing';
+import NavCtrlMock from '../../../__mocks__/navcontroller';
 import { AppMenu } from './app-menu';
 
 describe('app-menu', () => {
@@ -8,72 +10,48 @@ describe('app-menu', () => {
 
     describe('rendering', () => {
         let element: any;
-        let menu: any;
-        let nav : any;
-        beforeEach(async () => {
+        let win: Window;
+        let dom: Document;
+        let navCtrl: any;
+            beforeEach(async () => {
             element = await render({
               components: [AppMenu],
               html: '<app-menu></app-menu>'
             });
-            menu = element.querySelector('ion-menu');
-            nav = element.querySelector('ion-nav');
+            win = mockWindow();
+            dom = mockDocument(win);
+            navCtrl = new NavCtrlMock();
         });
         it('should have a ion-menu element', async () => {
             await flush(element);
+            let menu: HTMLIonMenuElement = element.querySelector('ion-menu');
             expect(menu).toBeTruthy();
         });
-        it('should have a ion-nav element', async () => {
-            await flush(element);
-            expect(nav).toBeTruthy();
-        });
         it('should have a ion-nav as content of a ion-menu', async () => {
-            await flush(element);
+            let menu: HTMLIonMenuElement = element.querySelector('ion-menu');
+            let nav:any = await navCtrl.getNav(); 
+            nav.el.setAttribute('id','navId');
+            expect(nav.el.getAttribute('id')).toEqual('navId');
+            await dom.body.appendChild(nav.el);
+            expect(dom.body.querySelector('#navId')).toBeTruthy();
+                  await flush(element);
             let contentId:string = menu.getAttribute('contentId');
-            let navId:string = nav.getAttribute('id')
+            let navId:string = nav.el.getAttribute('id')
             expect(navId).toEqual(contentId);
         });
-        it('should work without page property', async () => {
+        it('should have a list of menu items', async () => {
             await flush(element);
-            let buttons: Array<HTMLButtonElement> = menu.querySelectorAll('ion-button');
-            expect(buttons.length).toEqual(2);
-            expect(buttons[0].textContent).toEqual('News');
-            expect(buttons[1].textContent).toEqual('Profile');
+            let list:HTMLIonListElement = element.querySelector('#menu-items');
+            expect(list).toBeTruthy();
         });
-        it('should work with page property = "home"', async () => {
-            element.page='home/connected';
+        it('should contain three items', async () => {
             await flush(element);
-            let buttons: Array<HTMLButtonElement> = menu.querySelectorAll('ion-button');
-            expect(buttons.length).toEqual(2);
-            expect(buttons[0].textContent).toEqual('News');
-            expect(buttons[1].textContent).toEqual('Profile');
-        });
-        it('should work with page property = "news-create"', async () => {
-            element.page='news-create/offline';
-            element.handleClick();
-            await flush(element);
-            let buttons: Array<HTMLButtonElement> = menu.querySelectorAll('ion-button');
-            expect(buttons.length).toEqual(3);
-            expect(buttons[0].textContent).toEqual('Home');
-            expect(buttons[1].textContent).toEqual('Profile');
-            expect(buttons[2].textContent).toEqual('News Display');
-        });
-        it('should work with page property = "news-display"', async () => {
-            element.page='news-display/connected';
-            element.handleClick();
-            await flush(element);
-            let buttons: Array<HTMLButtonElement> = menu.querySelectorAll('ion-button');
-            expect(buttons.length).toEqual(3);
-            expect(buttons[0].textContent).toEqual('Home');
-            expect(buttons[1].textContent).toEqual('Profile');
-            expect(buttons[2].textContent).toEqual('News Create');
-        });
-        it('should work with page property = "profile"', async () => {
-            element.page='profile';
-            await flush(element);
-            let buttons: Array<HTMLButtonElement> = menu.querySelectorAll('ion-button');
-            expect(buttons.length).toEqual(2);
-            expect(buttons[0].textContent).toEqual('Home');
-            expect(buttons[1].textContent).toEqual('News');
+            let items:Array<HTMLIonItemElement> = element.querySelectorAll('ion-item');
+            expect(items).toBeTruthy();
+            expect(items.length).toEqual(3);
+            expect(items[0].textContent).toEqual('Home');
+            expect(items[1].textContent).toEqual('Profile');
+            expect(items[2].textContent).toEqual('News');
         });
     });
 });

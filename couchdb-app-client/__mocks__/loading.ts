@@ -1,3 +1,7 @@
+import { mockElement } from '@stencil/core/testing';
+
+export const mockGetEl = mockElement('ion-loading') as HTMLElement;
+
 let message:string;
 export const mockPresent = jest.fn().mockImplementation(() => {
     return new Promise((resolve ) => {
@@ -24,6 +28,7 @@ export const resetMock = jest.fn().mockReset();
 
 const mockLoading = jest.fn().mockImplementation(() => {
     return {
+        el: mockGetEl,
         present: mockPresent,
         dismiss: mockDismiss,
         setContentMock: mockSetContent,

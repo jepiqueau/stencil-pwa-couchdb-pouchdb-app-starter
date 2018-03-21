@@ -1,6 +1,6 @@
-import { Component, Prop, Element, State, Method } from '@stencil/core';
-import { RouterHistory } from '@stencil/router';
-
+import { Component, Element, Method } from '@stencil/core';
+import { getMenuController, getPopoverController,getNavComponent } from '../../helpers/ui-utilities'
+import { PopOptions } from '../../global/interfaces';
 
 @Component({
   tag: 'app-menu',
@@ -9,85 +9,89 @@ import { RouterHistory } from '@stencil/router';
 export class AppMenu {
 
     @Element() el: HTMLElement;
-    @Prop() history: RouterHistory;
-    @Prop() page: string;
-    @State() pageHome: string;
-    @State() newsOption: boolean = false;
 
-    private _page: string;
-    private _conMode: string;
+    private _menuCtrl: HTMLIonMenuControllerElement;
+    private _nav: HTMLIonNavElement;
+    private _popoverCtrl: HTMLIonPopoverControllerElement;
+    private _popCmp:string;
+    private _popEvent: any;
+    private _popData: any;
 
     @Method()
-    handleClick() {
-        this.newsOption = !this.newsOption;
+    handleClick(item:string) {
+        this._handleClick(item);
     }
-    componentDidLoad() {
+    async componentDidLoad() {
+        this._nav = await getNavComponent();
+        this._menuCtrl = await getMenuController();
+        this._popoverCtrl = await getPopoverController();
+    }
+    async presentPopover(options:PopOptions) {          
+        this._popCmp = options.component ? options.component : null;
+        this._popEvent = options.ev ? options.ev : null;
+        this._popData = options.data ? options.data : null;
+        const popoverElement = await this._popoverCtrl.create({
+            component: this._popCmp,
+            ev: this._popEvent,
+            data:this._popData
+        });
+        return await popoverElement.present();
+    }
+    _handleClickEvent(event: UIEvent) {
+        this._handleClick(event.srcElement.textContent);
     }
     
+    _handleClick(item:string,event?:UIEvent) {
+        this._menuCtrl.toggle('menu');
+
+        switch (item) {
+            case "Home" : {
+                this._nav.setRoot('app-home');
+                break;
+            }
+            case "Profile" : {
+                this._nav.setRoot('app-profile',{name:'stencil'});
+                break;
+            }
+            case "News": {
+                this.presentPopover({
+                    component:'app-popover',
+                    ev:event,
+                    data:{data:[
+                        {cmp:'app-news-create',value:'News Create'},
+                        {cmp:'app-news-display',value:'News Display'}
+                    ]}
+                });
+
+                break;
+            }            
+        }
+    } 
+
     // rendering
     render() {
-        let page = this.page ? this.page : 'home/offline';
-        this._conMode = page.slice(-7);
-        this.pageHome = this._conMode === 'offline' ? 'home/offline' : 'home/connected';
-        this._page = page ? page : this.pageHome;
         return (
             <main>        
-                <ion-menu contentId="navId">
+                <ion-menu menuId="menu" contentId="navId">
                     <ion-header>
                         <ion-toolbar>
                             <ion-title>Menu</ion-title>
                         </ion-toolbar>
                     </ion-header>
                     <ion-content>
-                        <ion-list>
-                            {this._page.substring(0, 4) !== 'home' ?
-                                <ion-item>
-                                <stencil-route-link url={'/'+this.pageHome}>
-                                    <ion-button buttonType='bar-button'>
-                                        Home
-                                    </ion-button>
-                                </stencil-route-link>
-                                </ion-item>
-                            : null }
-                                {this.newsOption ? 
-                                <slot>
-                                    {this._page.substring(0, 11) !== 'news-create' ?
-                                        <ion-item>
-                                            <stencil-route-link url='/news/create'> 
-                                                <ion-button buttonType='bar-button'onClick={this.handleClick.bind(this)}> 
-                                                News Create 
-                                                </ion-button>
-                                            </stencil-route-link> 
-                                        </ion-item> 
-                                    : null }
-                                    {this._page.substring(0, 12) !== 'news-display' ?
-                                        <ion-item>                    
-                                            <stencil-route-link url='/news/display'> 
-                                                <ion-button buttonType='bar-button'onClick={this.handleClick.bind(this)}> 
-                                                News Display 
-                                                </ion-button>
-                                            </stencil-route-link>                      
-                                        </ion-item> 
-                                    : null }
-                                </slot>                     
-                            : <ion-item>
-                                <ion-button buttonType='bar-button' onClick={this.handleClick.bind(this)}>
-                                    News
-                                </ion-button>
-                            </ion-item>}
-                            {this._page.substring(0, 7) !== 'profile' ?
-                                <ion-item>
-                                <stencil-route-link url='/profile/stencil'>
-                                    <ion-button buttonType='bar-button'>
-                                        Profile
-                                    </ion-button>
-                                </stencil-route-link>
-                                </ion-item>
-                            : null}
+                        <ion-list id="menu-items">
+                            <ion-item onClick={ (event: UIEvent) => this._handleClickEvent(event)}>
+                                <ion-label>Home</ion-label>
+                            </ion-item>
+                            <ion-item onClick={ (event: UIEvent) => this._handleClickEvent(event)}>
+                                <ion-label>Profile</ion-label>
+                            </ion-item>
+                            <ion-item onClick={ (event: UIEvent) => this._handleClickEvent(event)}>
+                                <ion-label>News</ion-label>
+                            </ion-item>
                         </ion-list>
                     </ion-content>
                 </ion-menu> 
-                <ion-nav id="navId"></ion-nav>            
             </main>
 
         )

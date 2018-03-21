@@ -1,9 +1,8 @@
 import { Component, Listen, Prop, State, Method } from '@stencil/core';
-import { MatchResults } from '@stencil/router';
-import { RouterHistory } from '@stencil/router';
 import { LoadingController } from '@ionic/core';
 import { ToastController } from '@ionic/core';
 import { initializeComponents, initializeMocks, checkServersConnected } from '../../helpers/ui-utilities';
+import { NavParams } from '@ionic/core/dist/types/components/nav/nav-util';
 
 import { urlB64ToUint8Array } from '../../helpers/utils';
 
@@ -14,32 +13,29 @@ import { urlB64ToUint8Array } from '../../helpers/utils';
 })
 export class AppProfile {
   private _comps:any;
-  private _history: RouterHistory | any;
   private _loadingCtrl : LoadingController | any;
-  private _pageNews: string;
 
-  @Prop() match: MatchResults;
   @Prop({ connect: 'ion-toast-controller' }) toastCtrl: ToastController;
-  @Prop() history: RouterHistory;
   @Prop({ connect: 'ion-loading-controller' }) loadingCtrl: LoadingController;
 
-  @State() isRender: boolean;
   @State() notify: boolean;
   @State() swSupport: boolean;
+  @State() navData: NavParams;
   @Method()
   initMocks(mocks:any): Promise<void> {
       // used for unit testing only
-      this._pageNews = 'profile';
-      this.isRender = true;
-      this._history = mocks.history;
       this._loadingCtrl = mocks.loadingCtrl;
       this._comps = { authProvider:true,sessionProvider:true,pouchDBProvider:true,
-                      errorCtrl:true,connectionProvider:true} 
+                      errorCtrl:true,connectionProvider:true,navCmpt:true} 
       return initializeMocks(this._comps,mocks);
   }
   @Method()
   isServersConnected(): Promise<void> {
-      return checkServersConnected(this._history,this._loadingCtrl,this._comps,'profile','Authenticating ...');
+      return checkServersConnected(this._loadingCtrl,this._comps,'profile','Authenticating ...');
+  }
+  @Method()
+  getNavData(el: HTMLIonNavElement) {
+    this._getNavData(el);
   }
 
   // demo key from https://web-push-codelab.glitch.me/
@@ -52,19 +48,23 @@ export class AppProfile {
     } else {
       this.swSupport = false;
     }
-    this.isRender = false;
-    this._pageNews = 'news-create';
-    this._history = this.history;
     this._loadingCtrl = this.loadingCtrl;
     this._comps = { authProvider:true,sessionProvider:true,pouchDBProvider:true,
-                    errorCtrl:true,connectionProvider:true} 
-    initializeComponents(this._comps).then(async () => {
-        if(this._comps.authProvider != null && this._comps.sessionProvider != null) {
-            this.isServersConnected().then (()=> {
-              this.isRender = true;         
-            })         
-          }                        
-    });
+                    errorCtrl:true,connectionProvider:true,navCmpt:true} 
+    initializeComponents(this._comps).then( () => {
+      if(this._comps.authProvider != null && this._comps.sessionProvider != null) {
+        this.isServersConnected().then (()=> {
+          this.getNavData(this._comps.navCmpt);
+        })         
+      }                        
+      });
+  }
+  componentDidLoad() {
+  }
+  _getNavData(nav: HTMLIonNavElement) {
+    if(nav != null) {
+      this.navData = nav.getActive().data;
+    }
   }
 
   @Listen('ionChange')
@@ -105,18 +105,13 @@ export class AppProfile {
 
   // rendering
   render() {
-    if(this.isRender) {
-      this._pageNews += '/'+this._comps.connectionProvider.getConnection();
-    }
-    if (this.match && this.match.params.name) {
+    if (this.navData && this.navData['name']) {
       return (
         <ion-page>
           <app-header menu htitle='Ionic PWA Toolkit'></app-header>
-          <app-menu page={this._pageNews}></app-menu>
-
           <ion-content>
             <p>
-              Hello! My name is {this.match.params.name}.
+              Hello! My name is {this.navData.name}.
               My name was passed in through a route param!
             </p>
 

@@ -14,6 +14,9 @@ describe('toastcontroller', () => {
     it('should create a ToastController from mock', () => {
         expect(toastCtrl).toBeDefined;
     });
+    it('When ToastController created show have el= ion-toast-controller', () => {
+        expect(toastCtrl.el.tagName).toEqual('ION-TOAST-CONTROLLER');
+    });
     it('should create a toast from the Toast Controller', async () => {
         let toast:any = await toastCtrl.create('my message from mock',1500);
         expect(toast).toBeDefined;

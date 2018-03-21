@@ -1,3 +1,5 @@
+import '@ionic/core';
+import '@stencil/core';
 import { Component, Prop, /*Listen*/ } from '@stencil/core';
 import { ToastController } from '@ionic/core';
 
@@ -41,31 +43,24 @@ export class AppMain {
   render() {
     return (
       <ion-app>
-        <main>
-          <stencil-router>
-            <stencil-route url='/' component='app-page' exact={true}>
-            </stencil-route>
-            <stencil-route url='/login' component='app-login'>
-            </stencil-route>
-            <stencil-route url='/register' component='app-register'>
-            </stencil-route>
-            <stencil-route url='/home/:conmode' component='app-home'>
-            </stencil-route>
-            <stencil-route url='/news/create' component='app-news-create'>
-            </stencil-route>
-            <stencil-route url='/news/display' component='app-news-display'>
-            </stencil-route>
-            <stencil-route url='/news/display/item/:itemObj' component='app-news-item'>
-            </stencil-route>
-            <stencil-route url='/profile/:name' component='app-profile'>
-            </stencil-route>
-          </stencil-router>
-          <app-error></app-error>
-          <app-pouchdb></app-pouchdb>
-          <app-session></app-session>
-          <app-auth></app-auth>
-          <app-connection></app-connection>
-        </main>
+        <ion-router>
+          <ion-route path="/" component="app-page"></ion-route>
+          <ion-route path="/login" component="app-login"></ion-route>
+          <ion-route path="/register" component="app-register"></ion-route>
+          <ion-route path="/home" component="app-home"></ion-route>
+          <ion-route path="/news/create" component="app-news-create"></ion-route>
+          <ion-route path="/news/display" component="app-news-display"></ion-route>  
+          <ion-route path="/news/display/item/:itemObj" component="app-news-item"></ion-route>  
+          <ion-route path='/profile/:name' component="app-profile"></ion-route>
+        </ion-router>
+        <ion-nav id="navId" root="app-page"></ion-nav> 
+        <app-menu></app-menu>
+        <ion-popover-controller></ion-popover-controller>           
+        <app-error></app-error>
+        <app-pouchdb></app-pouchdb>
+        <app-session></app-session>
+        <app-auth></app-auth>
+        <app-connection></app-connection>
       </ion-app>
     );
   }

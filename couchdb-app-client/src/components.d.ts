@@ -19,13 +19,9 @@ declare global {
 }
 
 import 'ionicons';
-import '@stencil/router';
 import '@ionic/core';
+import '@stencil/router';
 
-import {
-  MatchResults,
-  RouterHistory,
-} from '@stencil/router';
 
 import {
   AppAuth as AppAuth
@@ -141,6 +137,7 @@ declare global {
   }
   namespace JSXElements {
     export interface AppHeaderAttributes extends HTMLAttributes {
+      back?: any;
       htitle?: any;
       logout?: any;
       menu?: any;
@@ -173,7 +170,7 @@ declare global {
   }
   namespace JSXElements {
     export interface AppHomeAttributes extends HTMLAttributes {
-      match?: MatchResults;
+      
     }
   }
 }
@@ -203,7 +200,7 @@ declare global {
   }
   namespace JSXElements {
     export interface AppLoginAttributes extends HTMLAttributes {
-      history?: RouterHistory;
+      
     }
   }
 }
@@ -293,8 +290,7 @@ declare global {
   }
   namespace JSXElements {
     export interface AppMenuAttributes extends HTMLAttributes {
-      history?: RouterHistory;
-      page?: string;
+      
     }
   }
 }
@@ -324,7 +320,7 @@ declare global {
   }
   namespace JSXElements {
     export interface AppNewsCreateAttributes extends HTMLAttributes {
-      history?: RouterHistory;
+      
     }
   }
 }
@@ -354,7 +350,7 @@ declare global {
   }
   namespace JSXElements {
     export interface AppNewsDisplayAttributes extends HTMLAttributes {
-      history?: RouterHistory;
+      
     }
   }
 }
@@ -384,7 +380,7 @@ declare global {
   }
   namespace JSXElements {
     export interface AppNewsItemAttributes extends HTMLAttributes {
-      match?: MatchResults;
+      
     }
   }
 }
@@ -414,7 +410,37 @@ declare global {
   }
   namespace JSXElements {
     export interface AppPageAttributes extends HTMLAttributes {
-      history?: RouterHistory;
+      
+    }
+  }
+}
+
+
+import {
+  AppPopover as AppPopover
+} from './components/app-popover/app-popover';
+
+declare global {
+  interface HTMLAppPopoverElement extends AppPopover, HTMLStencilElement {
+  }
+  var HTMLAppPopoverElement: {
+    prototype: HTMLAppPopoverElement;
+    new (): HTMLAppPopoverElement;
+  };
+  interface HTMLElementTagNameMap {
+    "app-popover": HTMLAppPopoverElement;
+  }
+  interface ElementTagNameMap {
+    "app-popover": HTMLAppPopoverElement;
+  }
+  namespace JSX {
+    interface IntrinsicElements {
+      "app-popover": JSXElements.AppPopoverAttributes;
+    }
+  }
+  namespace JSXElements {
+    export interface AppPopoverAttributes extends HTMLAttributes {
+      
     }
   }
 }
@@ -474,8 +500,7 @@ declare global {
   }
   namespace JSXElements {
     export interface AppProfileAttributes extends HTMLAttributes {
-      history?: RouterHistory;
-      match?: MatchResults;
+      
     }
   }
 }
@@ -505,7 +530,7 @@ declare global {
   }
   namespace JSXElements {
     export interface AppRegisterAttributes extends HTMLAttributes {
-      history?: RouterHistory;
+      
     }
   }
 }

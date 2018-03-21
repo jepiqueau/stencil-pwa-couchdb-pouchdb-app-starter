@@ -45,9 +45,6 @@ describe('app-auth', () => {
             appPouchDB.restoreMock();
             appSession.resetMock();
             appPouchDB.resetMock();
-            appSession = null;
-            appPouchDB = null;
-            instance = null;
         });
         it('should build', () => {
             expect(instance).toBeTruthy();
@@ -119,9 +116,6 @@ describe('app-auth', () => {
             appPouchDB.restoreMock();
             appSession.resetMock();
             appPouchDB.resetMock();
-            appSession = null;
-            appPouchDB = null;
-            instance = null;
         });
         it('Should return Session not opened', async () => {
             await appSession.removeSessionData();
@@ -279,9 +273,6 @@ describe('app-auth', () => {
             appSession.resetMock();
             appPouchDB.resetMock();
             fetchMock.resetMocks();
-            appSession = null;
-            appPouchDB = null;
-            instance = null;
         });
         it('Should return status 200 when the username and password exist for a user already existing in CouchDB', async () => {
             spy = jest.spyOn(appPouchDB,'initDatabase');
