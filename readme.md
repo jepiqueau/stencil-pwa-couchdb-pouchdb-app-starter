@@ -20,7 +20,7 @@ This project is a Beta release and has only been tested with CouchDB and Node Ap
         . Showing Loading message using Ionic 4 LoadingController
         . Page navigation using Ionic 4 Router, Nav, Menu and MenuController
         . Page dialog using Ionic4 PopoverController and Popover
-        
+
 ## Getting Started
 
 clone this repo to a new directory:
@@ -69,8 +69,9 @@ on MAC OSX
 
 on Windows 
 execute the following command from a powershell command windows in the couchdb-app-server directory
-````
+```
 powershell -File .\createadatabase.ps1 dbname username password
+````
 
 Visit http://127.0.0.1:5984/_utils/#/_all_dbs
     you should see your database in the list of databases, select your database you should have 4 documents loaded
