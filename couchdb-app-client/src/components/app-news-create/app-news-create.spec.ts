@@ -1,4 +1,4 @@
-import { render, flush } from '@stencil/core/testing';
+import { TestWindow } from '@stencil/core/testing';
 import { AppNewsCreate } from './app-news-create';
 import AppAuthMock from '../../../__mocks__/app-auth';
 import AppSessionMock from '../../../__mocks__/app-session';
@@ -25,6 +25,8 @@ describe('app-news-create', () => {
         let navCmpt: any;
         let loadingCtrl: any;
         let mocks: any;
+        let window: TestWindow;
+        let dom: Document;
         let session: Session = {
             user_id: 'joesmith',
             token: 'gtKeORg_Slukgc4I5drTpQ',
@@ -39,8 +41,9 @@ describe('app-news-create', () => {
             }            
         };
         beforeEach(async () => {
-            element = await render({
-                components: [AppNewsCreate],
+            window = new TestWindow();
+            element = await window.load({
+                      components: [AppNewsCreate],
                 html: '<app-news-create></app-news-create>'
             });
             page = element.querySelector('ion-page');
@@ -51,6 +54,8 @@ describe('app-news-create', () => {
             errCtrl = new ErrCtrlMock();
             loadingCtrl = new LoadingCtrlMock();
             navCmpt = new NavCmptMock();
+            dom = window.document;
+            navCmpt.setDomMock(dom);
             mocks = {
                 authProvider:appAuth,
                 sessionProvider:appSession,
@@ -62,6 +67,8 @@ describe('app-news-create', () => {
             }
         });
         afterEach(async () => {
+            window = null;
+            dom = null;
 //            appAuth.restoreMock();
             appSession.restoreMock();
             appPouchDB.restoreMock();
@@ -79,34 +86,34 @@ describe('app-news-create', () => {
             
         });
         it('should have a ion-page component', async () => {
-            await flush(element);
+            await window.flush();
             expect(page).not.toBeNull();
         });
         it('should have an app-header component', async () => {
-            await flush(element);
-            let header: HTMLElement = page.querySelector('app-header');
+            await window.flush();
+            let header: HTMLAppHeaderElement = page.querySelector('app-header');
             expect(header).not.toBeNull();
         });
         it('should have an ion-content component', async () => {
-            await flush(element);
+            await window.flush();
             let content: HTMLElement = page.querySelector('ion-content');
             expect(content).not.toBeNull();
         });
         it('should have a news-create-card ', async () => {
-            await flush(element);
+            await window.flush();
             let content: HTMLElement = page.querySelector('ion-content');
             let card: HTMLElement = content.querySelector('#news-create-card'); 
             expect(card).not.toBeNull();
         });
         it('should have a form element ', async () => {
-            await flush(element);
+            await window.flush();
             let content: HTMLElement = page.querySelector('ion-content');
             let card: HTMLElement = content.querySelector('#news-create-card');
             let form: HTMLFormElement = card.querySelector('.news-create-form');
             expect(form).not.toBeNull();
         });
         it('should have a form with 4 entries ', async () => {
-            await flush(element);
+            await window.flush();
             page = element.querySelector('ion-page');
             let content: HTMLElement = page.querySelector('ion-content');
             let card: HTMLElement = content.querySelector('#news-create-card');
@@ -121,14 +128,14 @@ describe('app-news-create', () => {
             expect(inputs[3].getAttribute('id')).toEqual('button');
         });
         it('should return status 400 when server disconnected and session null', async () => {
-            await flush(element);
+            await window.flush();
             appAuth.responseMock({status:400,message:'Application Server not connected'});
             await element.initMocks(mocks);
             await element.isServersConnected();
             expect(errCtrl.getMessageMock()).toEqual("Application Server not connected");                    
         });
         it('should return status 400 when Application server connected DBServer disconnected and session null', async () => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:false}};
             appAuth.responseMock(server);
             await element.initMocks(mocks);
@@ -136,7 +143,7 @@ describe('app-news-create', () => {
             expect(errCtrl.getMessageMock()).toEqual("Application Server not connected");                    
         });
         it('should return status 200 when servers are connected and session exists', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -149,7 +156,7 @@ describe('app-news-create', () => {
             });
         });
         it('should return status 200 when servers are disconnected and session exists', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:400,message:'Application Server not connected'};
             element.initMocks(mocks).then(() => {
                 appAuth.dataReauthenticateMock({status:200});
@@ -163,7 +170,7 @@ describe('app-news-create', () => {
             });
         });
         it('should return status 400 when servers are connected and session expired', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             session.issued = 1517680659920;
             session.expires = 1517767059920;
@@ -179,7 +186,7 @@ describe('app-news-create', () => {
             });
         });
         it('should return status 400 when servers are connected and no session opended', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             element.initMocks(mocks).then(() => {
                 appAuth.dataReauthenticateMock({status:400,message: 'No session opened'});
@@ -192,7 +199,7 @@ describe('app-news-create', () => {
             });
         });
         it('should not validated the title if null', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -207,7 +214,7 @@ describe('app-news-create', () => {
             });
         });        
         it('should validated the title if not null', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -222,7 +229,7 @@ describe('app-news-create', () => {
             });
         });        
         it('should not validated the author if null', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -237,7 +244,7 @@ describe('app-news-create', () => {
             });
         });        
         it('should validated the author if not null', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -252,7 +259,7 @@ describe('app-news-create', () => {
             });
         });        
         it('should not validated the content if null', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -267,7 +274,7 @@ describe('app-news-create', () => {
             });
         });        
         it('should validated the content if not null', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -282,7 +289,7 @@ describe('app-news-create', () => {
             });
         });        
         it('should not have the button visible when title,author and content are null', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -299,7 +306,7 @@ describe('app-news-create', () => {
             });
         });
         it('should not have the button visible when title defined and author,content are null', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -316,7 +323,7 @@ describe('app-news-create', () => {
             });
         });        
         it('should not have the button visible when title,author defined and content is null', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -333,7 +340,7 @@ describe('app-news-create', () => {
             });
         }); 
         it('should have the button visible when title,author and content defined', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -350,7 +357,7 @@ describe('app-news-create', () => {
             });
         });        
         it('should not create the news document when clicking on the Create button', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -372,7 +379,7 @@ describe('app-news-create', () => {
             });
         });        
         it('should create the news document without text attachment when clicking on the Create button', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -393,7 +400,7 @@ describe('app-news-create', () => {
             });
         });        
         it('should create the news document with text attachment when clicking on the Create button', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});

@@ -1,4 +1,4 @@
-import { mockElement } from '@stencil/core/testing';
+import { mockElement } from './mock';
 import MenuMock from './menu';
 import { getValueFromKey, indexofKeyInArray,
     isKeyInArray, getValuesFromArray } from './utilities';
@@ -42,15 +42,14 @@ export const mockOpen = jest.fn().mockImplementation((menuId?:string): Promise<b
                 menus =[...menus,{key:mId,value:menu}];
         
                 if(menuOpen != null ) {
-                    indexofKeyInArray(menus,menuOpen).then((index) => {
-                        if(index >= 0 ) {
-                            menus[index].value.active = false;                  
-                            menus[index].value.close().then(() => {
-                                menuOpen = menuId;
-                                resolve(menu.open());  
-                            }) 
-                        } 
-                    })
+                    let index:number = indexofKeyInArray(menus,menuOpen);
+                    if(index >= 0 ) {
+                        menus[index].value.active = false;                  
+                        menus[index].value.close().then(() => {
+                            menuOpen = menuId;
+                            resolve(menu.open());  
+                        }) 
+                    } 
                 } else {
                     menuOpen = menuId;
                     resolve(menu.open());
@@ -93,13 +92,13 @@ export const mockEnable= jest.fn().mockImplementation(async (shouldEnable: boole
 });
 export const mockGet = jest.fn().mockImplementation(async (menuId?:string): Promise<any> => {
     const mId = menuId ? menuId : 'left';
-    let res:boolean = await isKeyInArray (menus,mId);
+    let res:boolean = isKeyInArray (menus,mId);
     if(!res) return Promise.resolve(false);
-    let value:any = await getValueFromKey(menus,mId);
+    let value:any = getValueFromKey(menus,mId);
     return Promise.resolve(value);
 });
 export const mockGetMenus = jest.fn().mockImplementation(async (): Promise<Array<any>> => {
-    let values: Array<any> = await getValuesFromArray(menus);
+    let values: Array<any> = getValuesFromArray(menus);
     return Promise.resolve(values);
 });    
 export const getMenusMock = jest.fn().mockImplementation(() => {

@@ -1,15 +1,17 @@
-import { ToastController, LoadingController, Loading } from '@ionic/core';
+import { ToastController, LoadingController } from '@ionic/core';
 import { Session } from '../global/interfaces';
+import { LOADING_TIMEOUT } from '../global/constants';
 
-
-let loading: Loading;
+let loading: HTMLIonLoadingElement;
 const showToast = async (toastCtrl: ToastController,msg:string): Promise<void> => {
   const toast = await toastCtrl.create({ message: msg, duration: 1500 });
   toast.present();
 }
 const presentLoading = async (loadingCtrl:LoadingController,message:string): Promise<void> => {
   loading = await loadingCtrl.create({
-    content: message
+    content: message,
+    spinner: 'crescent',
+    duration: LOADING_TIMEOUT
   });
   loading.present();
 }
@@ -21,6 +23,24 @@ const getIonApp = (docMock?: Document): Promise<any> => {
   const doc: Document = docMock ? docMock : document;
   const appElement: HTMLElement = doc.querySelector('ion-app');
   return Promise.resolve(appElement ? appElement : null);
+}
+const getIonRouter = async (docMock?: Document): Promise<any> => {
+  const doc: Document = docMock ? docMock : null;
+  const appElement: HTMLElement = await getIonApp(doc);
+  const routerElement = appElement ? appElement.querySelector('ion-router') : null;
+  return  Promise.resolve(routerElement);
+}
+const getIonRoutes = async (docMock?: Document): Promise<any> => {
+  const doc: Document = docMock ? docMock : null;
+  let routerElement: any = await getIonRouter(doc);
+  return  Promise.resolve(routerElement ? routerElement.querySelectorAll('ion-route') : null);
+}
+const getComponentFromUrl = async (path:string, docMock?: Document): Promise<string> => {
+  const doc: Document = docMock ? docMock : null;
+  let routes: NodeList = await getIonRoutes(doc);
+  let route :Array<any> = Array.from(routes).filter((x:HTMLIonRouteElement) => x.url === path);
+  return  Promise.resolve(route ? route[0].component : null);
+
 }
 const getPouchDBProvider = async (docMock?: Document): Promise<any> => {
   const doc: Document = docMock ? docMock : null;
@@ -52,6 +72,11 @@ const getMenuController = async (docMock?: Document): Promise<any> => {
   const body: HTMLBodyElement = doc.querySelector('body');
   return  Promise.resolve(body ? body.querySelector('ion-menu-controller') : null);
 }
+const getModalController = async (docMock?: Document): Promise<any> => {
+  const doc: Document = docMock ? docMock : document;
+  const body: HTMLBodyElement = doc.querySelector('body');
+  return  Promise.resolve(body ? body.querySelector('ion-modal-controller') : null);
+}
 const getPopoverController = async (docMock?: Document): Promise<any> => {
   const doc: Document = docMock ? docMock : null;
   let appElement: any = await getIonApp(doc);
@@ -62,7 +87,19 @@ const getNavComponent = async (docMock?: Document): Promise<any> => {
   let appElement: any = await getIonApp(doc);
   return  Promise.resolve(appElement ? appElement.querySelector('#navId') : null);
 }
-
+const getModalComponent = async (docMock?: Document): Promise<any> => {
+  const doc: Document = docMock ? docMock : null;
+  let appElement: any = await getIonApp(doc);
+  return  Promise.resolve(appElement ? appElement.querySelector('ion-modal') : null);
+}
+const getPreviousUrl = (location?:any):string => {
+  let url:string = location ? location:`${window.location.href}`;
+  let k: string=url.substring(0,url.lastIndexOf('/')).split('#')[1];
+  return k.length != 0 && typeof k != 'undefined' ? k : null; 
+}
+const getUrl = ():string => {
+  return `${window.location.href}`;
+}
 const checkServersConnected = ( loadingCtrl: LoadingController | any,
                           comps:any, page:string,loadingMsg:string): Promise<void> => {
   return new Promise<void>(async (resolve) => {
@@ -143,12 +180,12 @@ const initializeComponents = (components:any,docMock?: Document):Promise<void> =
     if(components.popoverCtrl && components.popoverCtrl === null) components.errorCtrl.showError('Error: No Menu Controller');
     if(components.navCmpt) components.navCmpt = await getNavComponent(doc);
     if(components.navCmpt && components.navCmpt === null) components.errorCtrl.showError('Error: No Nav Component');
-
     resolve();
   }); 
 }
 export { showToast, presentLoading, dismissLoading, getPouchDBProvider, 
         getErrorController, getAuthProvider, getSessionProvider,
         checkServersConnected, initializeMocks,initializeComponents,
-        getIonApp, getConnectionProvider,getMenuController,
-        getPopoverController, getNavComponent}
+        getIonApp, getConnectionProvider,getMenuController,getModalController,
+        getPopoverController, getNavComponent,getModalComponent, getPreviousUrl,
+        getIonRouter,getIonRoutes,getComponentFromUrl,getUrl}

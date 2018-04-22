@@ -15,45 +15,38 @@ describe('popover', () => {
         expect(popover).toBeDefined;
     });
     it('should set the popover component', async () => {
-        let options:any ={component:'app-news-popover'}
-        await popover.setDataMock(options);
-        expect(popover.getDataMock().component).toEqual('app-news-popover');
-        expect(popover.getDataMock().data).toBeNull;
-        expect(popover.getDataMock().ev).toBeNull;
+        popover.component = 'app-news-popover';
+        expect(popover.component).toEqual('app-news-popover');
+        expect(popover.data).toBeNull;
+        expect(popover.ev).toBeNull;  
     });
     it('should set the popover component & data', async () => {
-        let options:any ={  component:'app-news-popover',
-                            data:{data:[{key:1,value:'News Create'},{key:2,value:'News Display'}]}};
-        await popover.setDataMock(options);
-        expect(popover.getDataMock().component).toEqual('app-news-popover');
-        expect(popover.getDataMock().data).toEqual({data:[{key:1,value:'News Create'},{key:2,value:'News Display'}]});
-        expect(popover.getDataMock().ev).toBeNull;
+        popover.component = 'app-news-popover';
+        popover.componentProps = {data:[{key:1,value:'News Create'},{key:2,value:'News Display'}]};
+        expect(popover.component).toEqual('app-news-popover');
+        expect(popover.componentProps).toEqual({data:[{key:1,value:'News Create'},{key:2,value:'News Display'}]});
+        expect(popover.ev).toBeNull;
     });
     it('should set the popover component & data', async () => {
         const event = { preventDefault: () => {} };
-        let options:any ={  component:'app-news-popover',
-                            data:{data:[{key:1,value:'News Create'},{key:2,value:'News Display'}]},
-                            ev:event};
-        await popover.setDataMock(options);
-        expect(popover.getDataMock().component).toEqual('app-news-popover');
-        expect(popover.getDataMock().data).toEqual({data:[{key:1,value:'News Create'},{key:2,value:'News Display'}]});
-        expect(JSON.stringify(popover.getDataMock().ev)).toEqual(JSON.stringify({ preventDefault: () => {} }));
+        popover.component = 'app-news-popover';
+        popover.componentProps = {data:[{key:1,value:'News Create'},{key:2,value:'News Display'}]};
+        popover.ev = event;
+        expect(popover.component).toEqual('app-news-popover');
+        expect(popover.componentProps).toEqual({data:[{key:1,value:'News Create'},{key:2,value:'News Display'}]});
+        expect(JSON.stringify(popover.ev)).toEqual(JSON.stringify({ preventDefault: () => {} }));
     });
     it('should present the popover', async () => {
-        let options:any ={component:'app-news-popover'}
-        await popover.setDataMock(options);
-        popover.present(() => {
-            expect(popover.getDataMock().component).toEqual('app-news-popover');
-        });
+        popover.component = 'app-news-popover';
+        await popover.present();
+        expect(popover.component).toEqual('app-news-popover');
     });
     it('should dismiss the popover', async () => {
-        let options:any ={component:'app-news-popover'}
-        await popover.setDataMock(options);
-        popover.dismiss(() => {
-            expect(popover.getDataMock().component).toBeNull;            
-            expect(popover.getDataMock().data).toBeNull;
-            expect(popover.getDataMock().ev).toBeNull;
-        });
+        popover.component = 'app-news-popover';
+        await popover.present();
+        await popover.dismiss();
+        expect(popover.component).toBeNull;            
+        expect(popover.data).toBeNull;
+        expect(popover.ev).toBeNull;
     });
-    
 });

@@ -1,5 +1,4 @@
-import { render, flush } from '@stencil/core/testing';
-import { mockWindow, mockDocument } from '@stencil/core/testing';
+import { TestWindow } from '@stencil/core/testing';
 import { AppHome } from './app-home';
 import NavCmptMock from '../../../__mocks__/nav';
 import MenuCtrlMock from '../../../__mocks__/menucontroller';
@@ -19,16 +18,15 @@ describe('app', () => {
     let navCtrl: any;
     let menuCtrl: any;
     let mocks: any;
-    let win: Window;
+    let window: TestWindow;
     let dom: Document;
-
     beforeEach(async () => {
-      element = await render({
+      window = new TestWindow();
+      element = await window.load({
         components: [AppHome],
         html: '<app-home></app-home>'
       });
-      win = mockWindow();
-      dom = mockDocument(win);
+      dom = window.document;
       navCmpt = new NavCmptMock();
       connProv = new AppConnMock();
       menuCtrl = new MenuCtrlMock();
@@ -40,6 +38,8 @@ describe('app', () => {
       }
     });
     afterEach(async () => {
+      window = null;
+      dom = null;
       navCtrl.restoreMock();
       navCmpt.restoreMock();
       connProv.restoreMock();
@@ -50,59 +50,76 @@ describe('app', () => {
       menuCtrl.resetMock();
     });
     it('should have a ion-page component', async () => {
-        await flush(element);
+      await window.flush();
         page = element.querySelector('ion-page');
         expect(page).not.toBeNull();
     });
     it('should have an app-header component', async () => {
-        await flush(element);
+      await window.flush();
         page = element.querySelector('ion-page');
         let header: HTMLElement = page.querySelector('app-header');
         expect(header).not.toBeNull();
     });
     it('should have an ion-content component', async () => {
-          await flush(element);
+      await window.flush();
           page = element.querySelector('ion-page');
           let content: HTMLElement = page.querySelector('ion-content');
           expect(content).not.toBeNull();
     });
     it('should have an app-logo component', async () => {
-        await flush(element);
+      await window.flush();
         page = element.querySelector('ion-page');
         let content: HTMLElement = page.querySelector('ion-content');
         let logo: HTMLElement = content.querySelector('app-logo');
         expect(logo).not.toBeNull();
     });
     it('should have an app-header component with a menu property', async () => {
-      await flush(element);
+      await window.flush();
       page = element.querySelector('ion-page');
       let header: HTMLElement = page.querySelector('app-header');
       expect(header.getAttribute('menu')).not.toBeNull();
     });
     it('should have an app-header component without a logout property', async () => {
-      await flush(element);
+      await window.flush();
       page = element.querySelector('ion-page');
       let header: HTMLElement = page.querySelector('app-header');
-      expect((header.getAttribute('logout') === 'true')).toBeFalsy();
+      expect(header.getAttribute('logout')).toEqual('false');
+    });
+    it('should have an app-header component with a logout property when mode property setted', async () => {
+      element.mode='connected';
+      await window.flush();
+      mocks = {
+        menuCtrl:menuCtrl,
+        navCmpt:navCmpt
+      }
+      element.initMocks(mocks).then(() => {
+        let comps:any = element.getComps();
+        
+        element.setConMode().then( async () => {
+          await window.flush();
+          page = element.querySelector('ion-page');
+          let header: HTMLElement = page.querySelector('app-header');
+          expect(header.getAttribute('logout')).toBeTruthy();
+        });
+      });
     });
     it('should have an app-header component with a logout property if server connected', async (done) => {
-      await flush(element);
+      await window.flush();
       connProv.setConnection('connected');
       expect(await connProv.getConnection()).toEqual('connected');
       element.initMocks(mocks).then(() => {
         element.setConMode().then(async () => {
-          await flush(element);
+          await window.flush();
 
           page = element.querySelector('ion-page');
           let header: HTMLElement = page.querySelector('app-header');
-
-          expect(header.getAttribute('logout')).not.toBeNull();
+          expect(header.getAttribute('logout')).toBeTruthy();
           done();
         }); 
       });
     });
     it('should display the menu when clicking on the Menu button', async (done) => {
-      await flush(element);
+      await window.flush();
       let res = await menuCtrl.open('menu');
       expect(res).toBeTruthy();
       let menu:any = await menuCtrl.get('menu');
@@ -113,7 +130,8 @@ describe('app', () => {
       nav.el.classList.add('menu-content-open');
       await dom.body.appendChild(nav.el);
       element.initMocks(mocks).then(() => {
-        element.handleToggleMenu();
+          let butEl: HTMLElement = element.querySelector('.menu-button');
+          butEl.dispatchEvent(new window.Event('click'));
           let menuEl: HTMLIonMenuElement = dom.querySelector('ion-menu');
           expect(menuEl).toBeTruthy();
           expect(menuEl.classList.contains('show-menu')).toBeTruthy();
@@ -122,5 +140,8 @@ describe('app', () => {
           done();
       });
     });
-  });
+
+
+
+});
 });

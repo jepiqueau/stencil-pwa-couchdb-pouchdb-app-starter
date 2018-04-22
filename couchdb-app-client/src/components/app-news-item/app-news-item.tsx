@@ -1,29 +1,28 @@
-import { Component, Method, State } from '@stencil/core';
+import { Component, Prop, Method, State } from '@stencil/core';
 import { initializeComponents, initializeMocks } from '../../helpers/ui-utilities';
 import { getFromDateISOStringToEnglish } from '../../helpers/utils'; 
 import { News } from '../../global/interfaces';
-import { NavParams } from '@ionic/core/dist/types/components/nav/nav-util';
 
 @Component({
     tag: 'app-news-item',
     styleUrl: 'app-news-item.scss'
 })
 export class AppNewsItem {
-
+    @Prop() itemObj: any;
     @State() item: News = null;
     @State() attachments: Array<any> = [];
-    @State() navData: NavParams;
+
     @Method()
     initMocks(mocks:any): Promise<void> {
         // used for unit testing only
         this._comps = {pouchDBProvider:true,errorCtrl:true,navCmpt:true} 
-        return initializeMocks(this._comps,mocks);
+        return initializeMocks(this._comps,mocks).then(async () => {
+            if(this._comps.pouchDBProvider != null) {
+                await this._getItem();
+            }
+            return Promise.resolve();
+        });
     }
-    @Method()
-    getNavData(): Promise<void> {
-      return this._getNavData();
-    }
-  
     private _comps:any;
     private _englishDate:string;
  
@@ -31,25 +30,13 @@ export class AppNewsItem {
         this._comps = {pouchDBProvider:true,errorCtrl:true,navCmpt:true} 
         initializeComponents(this._comps).then(async () => {
             if(this._comps.pouchDBProvider != null) {
-                await this.getNavData();
+                await this._getItem();
             }
         });
     }
-    async _getNavData() : Promise<void>{
-        if(this._comps.navCmpt != null) {
-            if(this._comps.navCmpt.getActive() != null) {
-                this.navData = this._comps.navCmpt.getActive().data;
-                await this._getItem();
-            } else {
-                this.navData = null;
-            }
-        }
-        return Promise.resolve();
-    }
-    
     async _getItem(): Promise<void> {
-        if (this.navData && this.navData['itemObj']) {
-            this.item = this.navData['itemObj'];
+        if (this.itemObj) {
+            this.item = this.itemObj;
             this._englishDate = getFromDateISOStringToEnglish(this.item.dateCreated)
             // get the news attachment
             let result = await this._comps.pouchDBProvider.getTextAttachments(this.item._id,'content');
@@ -63,7 +50,7 @@ export class AppNewsItem {
     }
     // rendering
     render() {
-        if (this.item) {    
+        if (this.item != null) {    
             return (
                 <ion-page>
                     <app-header back></app-header>
@@ -75,7 +62,7 @@ export class AppNewsItem {
                                 </ion-card-title>
                                 <ion-card-subtitle class='subtitle'>
                                     <br />
-                                    <slot>{this._englishDate} / <span>{this.item.author}</span></slot>
+                                    {this._englishDate} / <span>{this.item.author}</span>
                                 </ion-card-subtitle>
                             </ion-card-header>
                             <ion-card-content>
@@ -92,7 +79,7 @@ export class AppNewsItem {
         } else {
             return (
                 <ion-page>
-                    <app-header></app-header>
+                    <app-header back></app-header>
                     <ion-content>
                     <ion-list>
                         <div id='fake-card'></div>

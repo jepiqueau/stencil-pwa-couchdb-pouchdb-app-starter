@@ -1,5 +1,4 @@
-import { render, flush } from '@stencil/core/testing';
-import { mockWindow, mockDocument } from '@stencil/core/testing';
+import { TestWindow } from '@stencil/core/testing';
 import { AppNewsItem } from './app-news-item';
 import AppPouchDBMock from '../../../__mocks__/app-pouchdb';
 import ErrCtrlMock from '../../../__mocks__/errorcontroller';
@@ -20,9 +19,9 @@ describe('app-news-item', () => {
         let errCtrl: any;
         let navCtrl: any;
         let navCmpt : any;
-        let win: Window;
+        let window: TestWindow;
         let dom: Document;
-            let mocks: any;
+        let mocks: any;
         let news: News = {
             _id: "3925738c-8537-44ab-a771-2a73f87fb61d",
             _rev: "2-65642c4e1b734ae698ddd6c7af46c107",
@@ -44,7 +43,10 @@ describe('app-news-item', () => {
             dateUpdated: "2018-03-06T18:13:44.603Z"                  
         };
         beforeEach(async () => {
-            element = await render({
+            window = new TestWindow();
+            dom = window.document;
+            dom.body.innerHTML = "";
+            element = await window.load({
                 components: [AppNewsItem],
                 html: '<app-news-item></app-news-item'
             });
@@ -53,15 +55,15 @@ describe('app-news-item', () => {
             errCtrl = new ErrCtrlMock();
             navCtrl = new NavCtrlMock();
             navCmpt = new NavCmptMock();
-            win = mockWindow();
-            dom = mockDocument(win);
             mocks = {
                 pouchDBProvider:appPouchDB,
                 errorCtrl: errCtrl,
                 navCmpt: navCmpt
             }
         });
-        afterEach(() => {
+        afterEach(async () => {
+            window = null;
+            dom = null;
             appPouchDB.restoreMock();
             errCtrl.restoreMock();
             navCtrl.restoreMock();
@@ -72,36 +74,38 @@ describe('app-news-item', () => {
             navCmpt.resetMock();            
         });
         it('should have a ion-page component', async () => {
-            await flush(element);
+            await window.flush();
             expect(page).not.toBeNull();
         });
         it('should have an app-header component', async () => {
-            await flush(element);
+            await window.flush();
             let header: HTMLElement = page.querySelector('app-header');
             expect(header).not.toBeNull();
         });
         it('should have an ion-content component', async () => {
-            await flush(element);
+            await window.flush();
             let content: HTMLElement = page.querySelector('ion-content');
             expect(content).not.toBeNull();
         });
         it('should not have a news-item-card ', async () => {
-            await flush(element);
+            await window.flush();
             let content: HTMLElement = page.querySelector('ion-content');
             let card: HTMLIonCardElement = content.querySelector('#news-item-card'); 
             expect(card).toBeNull();
         });
-        it('should return a "fake" card ', async () => {
+        it('should return a "fake" card ', async (done) => {
+            await window.flush();
             let nav:any = await navCtrl.getNav(); 
             nav.el.setAttribute('id','navId');
             expect(nav.el.getAttribute('id')).toEqual('navId');
-            await dom.body.appendChild(nav.el);
-            expect(dom.body.querySelector('#navId')).toBeTruthy();
+            dom.body.appendChild(nav.el);
+            expect(dom.querySelector('#navId')).toBeTruthy();
             element.initMocks(mocks).then(async () => {
-                await flush(element);
+                await window.flush();
                 let content: HTMLElement = page.querySelector('ion-content');
                 let card: HTMLElement = content.querySelector('#fake-card'); 
                 expect(card).not.toBeNull();
+                done();
             });
         });
         it('should have a news-item-card ', async (done) => {           
@@ -111,21 +115,15 @@ describe('app-news-item', () => {
                 author: news.author,
                 dateCreated: news.dateCreated
               }
-            let nav:any = await navCtrl.getNav(); 
-            nav.el.setAttribute('id','navId');
-            expect(nav.el.getAttribute('id')).toEqual('navId');
-            await dom.body.appendChild(nav.el);
-            expect(dom.body.querySelector('#navId')).toBeTruthy();
-            await nav.push('app-news-item',{'itemObj':params});
-            expect(nav.getActive().data['itemObj']).toEqual(params);
-            element.initMocks(mocks).then(() => {
-                element.getNavData().then(async () => {
-                    await flush(element);
-                    let content: HTMLElement = page.querySelector('ion-content');
-                    let card: HTMLIonCardElement = content.querySelector('#news-item-card'); 
-                    expect(card).not.toBeNull();
-                    done();
-                });
+            element.itemObj = params;
+            await window.flush();
+            element.initMocks(mocks).then(async() => {
+                await window.flush();
+                page = element.querySelector('ion-page');
+                let content: HTMLElement = page.querySelector('ion-content');
+                let card: HTMLIonCardElement = content.querySelector('#news-item-card'); 
+                expect(card).not.toBeNull();
+                done();
             });
         });
         it('should have a title in the card  ', async (done) => {           
@@ -135,23 +133,16 @@ describe('app-news-item', () => {
                 author: news.author,
                 dateCreated: news.dateCreated
             }
-            let nav:any = await navCtrl.getNav(); 
-            nav.el.setAttribute('id','navId');
-            expect(nav.el.getAttribute('id')).toEqual('navId');
-            await dom.body.appendChild(nav.el);
-            expect(dom.body.querySelector('#navId')).toBeTruthy();
-            await nav.push('app-news-item',{'itemObj':params});
-            expect(nav.getActive().data['itemObj']).toEqual(params);
-            element.initMocks(mocks).then(() => {
-                element.getNavData().then(async () => {
-                    await flush(element);
-                    let content: HTMLElement = page.querySelector('ion-content');
-                    let card: HTMLIonCardElement = content.querySelector('#news-item-card'); 
-                    let titleEl: HTMLIonCardTitleElement = card.querySelector('ion-card-title'); 
-                    expect(titleEl).not.toBeNull();
-                    expect(titleEl.textContent).toEqual(params.title);
-                    done();
-                });
+            element.itemObj = params;
+            await window.flush();
+            element.initMocks(mocks).then(async () => {
+                await window.flush();
+                let content: HTMLElement = page.querySelector('ion-content');
+                let card: HTMLIonCardElement = content.querySelector('#news-item-card'); 
+                let titleEl: HTMLIonCardTitleElement = card.querySelector('ion-card-title'); 
+                expect(titleEl).not.toBeNull();
+                expect(titleEl.textContent).toEqual(params.title);
+                done();
             });
         });
         it('should have a subtitle in the card  ', async (done) => {           
@@ -162,49 +153,36 @@ describe('app-news-item', () => {
                 dateCreated: news.dateCreated
             }
             let date:string = getFromDateISOStringToEnglish(params.dateCreated);
-            let nav:any = await navCtrl.getNav(); 
-            nav.el.setAttribute('id','navId');
-            expect(nav.el.getAttribute('id')).toEqual('navId');
-            await dom.body.appendChild(nav.el);
-            expect(dom.body.querySelector('#navId')).toBeTruthy();
-            await nav.push('app-news-item',{'itemObj':params});
-            expect(nav.getActive().data['itemObj']).toEqual(params);
-            element.initMocks(mocks).then(() => {
-                element.getNavData().then(async () => {
-                    await flush(element);
-                    let content: HTMLElement = page.querySelector('ion-content');
-                    let card: HTMLIonCardElement = content.querySelector('#news-item-card'); 
-                    let subTitleEl: HTMLIonCardSubtitleElement = card.querySelector('ion-card-subtitle'); 
-                    expect(subTitleEl).not.toBeNull();
-                    expect(subTitleEl.textContent).toEqual(date + ' / ' +  params.author);
-                    done();
-                });
+            element.itemObj = params;
+            await window.flush();
+            element.initMocks(mocks).then(async () => {
+                await window.flush();
+                let content: HTMLElement = page.querySelector('ion-content');
+                let card: HTMLIonCardElement = content.querySelector('#news-item-card'); 
+                let subTitleEl: HTMLIonCardSubtitleElement = card.querySelector('ion-card-subtitle'); 
+                expect(subTitleEl).not.toBeNull();
+                expect(subTitleEl.textContent).toEqual(date + ' / ' +  params.author);
+                done();
             });
         });
-       it('should not have a text attachment in the card  ', async (done) => {           
+        it('should not have a text attachment in the card  ', async (done) => {           
             let params:News = {
                 _id : news._id,
                 title: news.title,
                 author: news.author,
                 dateCreated: news.dateCreated
             }
-            let nav:any = await navCtrl.getNav(); 
-            nav.el.setAttribute('id','navId');
-            expect(nav.el.getAttribute('id')).toEqual('navId');
-            await dom.body.appendChild(nav.el);
-            expect(dom.body.querySelector('#navId')).toBeTruthy();
-            await nav.push('app-news-item',{'itemObj':params});
-            expect(nav.getActive().data['itemObj']).toEqual(params);
-            element.initMocks(mocks).then(() => {
-                element.getNavData().then(async () => {
-                    await flush(element);
-                    let content: HTMLElement = page.querySelector('ion-content');
-                    let card: HTMLIonCardElement = content.querySelector('#news-item-card'); 
-                    let contentEl: HTMLIonItemElement = card.querySelector('.content');
-                    expect(contentEl).toBeNull(); 
-                    expect(errCtrl.getMessageMock()).toEqual("No Attachments for this News document");
-                    done();
-                });
+            element.itemObj = params;
+            await window.flush();
+            navCmpt.setDomMock(dom);
+            element.initMocks(mocks).then(async () => {
+                await window.flush();
+                let content: HTMLElement = page.querySelector('ion-content');
+                let card: HTMLIonCardElement = content.querySelector('#news-item-card'); 
+                let contentEl: HTMLIonItemElement = card.querySelector('.content');
+                expect(contentEl).toBeNull(); 
+                expect(errCtrl.getMessageMock()).toEqual("No Attachments for this News document");
+                done();
             });                    
         });
         it('should have a text attachment in the card  ', async (done) => {           
@@ -219,22 +197,15 @@ describe('app-news-item', () => {
             appPouchDB.setTextAttachmentsMock(res.id,text,'content');
             const retText:any = await appPouchDB.getTextAttachments(res.id,'content');        
             expect(retText.text).toEqual(text);
-            let nav:any = await navCtrl.getNav(); 
-            nav.el.setAttribute('id','navId');
-            expect(nav.el.getAttribute('id')).toEqual('navId');
-            await dom.body.appendChild(nav.el);
-            expect(dom.body.querySelector('#navId')).toBeTruthy();
-            await nav.push('app-news-item',{'itemObj':params});
-            expect(nav.getActive().data['itemObj']).toEqual(params);
-            element.initMocks(mocks).then(() => {
-                element.getNavData().then(async () => {
-                    await flush(element);
-                    let content: HTMLElement = page.querySelector('ion-content');
-                    let card: HTMLIonCardElement = content.querySelector('#news-item-card'); 
-                    let contentEl: HTMLIonItemElement = card.querySelector('.content');
-                    expect(contentEl.textContent).toEqual(text);
-                    done();
-                });
+            element.itemObj = params;
+            await window.flush();
+            element.initMocks(mocks).then( async () => {
+                await window.flush();
+                let content: HTMLElement = page.querySelector('ion-content');
+                let card: HTMLIonCardElement = content.querySelector('#news-item-card'); 
+                let contentEl: HTMLIonItemElement = card.querySelector('.content');
+                expect(contentEl.textContent).toEqual(text);
+                done();
             }); 
         });
     });

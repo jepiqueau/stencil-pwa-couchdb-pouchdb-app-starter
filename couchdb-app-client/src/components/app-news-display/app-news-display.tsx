@@ -1,5 +1,5 @@
-import { Component, Method, State, Prop } from '@stencil/core';
-import { LoadingController } from '@ionic/core';
+import { Component, Element, Method, State, Prop } from '@stencil/core';
+import { LoadingController, ComponentProps } from '@ionic/core';
 import { initializeComponents, checkServersConnected, initializeMocks } from '../../helpers/ui-utilities';
 import { News } from '../../global/interfaces';
 
@@ -8,7 +8,7 @@ import { News } from '../../global/interfaces';
   styleUrl: 'app-news-display.scss'
 })
 export class AppNewsDisplay {
-
+  @Element() el: HTMLElement;
   @State() news: Array<News>;
   @Prop({ connect: 'ion-loading-controller' }) loadingCtrl: LoadingController;
 
@@ -54,7 +54,6 @@ export class AppNewsDisplay {
         }
     });
   }
-
   // private methods
   async _getNews(): Promise<Array<News>> {
     let queryOptions: any = {
@@ -66,7 +65,8 @@ export class AppNewsDisplay {
 
   // handling events
   _handleClick(params:News) {
-    this._comps.navCmpt.push('app-news-item', {itemObj:params});
+    let data: ComponentProps = {itemObj:params};
+    this._comps.navCmpt.push('app-news-item', data);
   }
 
   // rendering

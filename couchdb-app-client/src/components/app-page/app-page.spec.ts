@@ -1,4 +1,4 @@
-import { flush, render } from '@stencil/core/testing';
+import { TestWindow } from '@stencil/core/testing';
 import { AppPage} from './app-page';
 import AppAuthMock from '../../../__mocks__/app-auth';
 import AppSessionMock from '../../../__mocks__/app-session';
@@ -40,6 +40,9 @@ describe('app-page', () => {
         let element: any;
         let mocks:any;
         let page: HTMLElement;
+        let window: TestWindow;
+        let dom: Document;
+
         let session: Session = {
             user_id: 'joesmith',
             token: 'gtKeORg_Slukgc4I5drTpQ',
@@ -54,7 +57,8 @@ describe('app-page', () => {
             }            
         };
         beforeEach(async () => {
-            element = await render({
+            window = new TestWindow();
+            element = await window.load({
                 components: [AppPage],
                 html: '<app-page></app-page>'
             });
@@ -64,6 +68,8 @@ describe('app-page', () => {
             errCtrl = new ErrCtrlMock();
             loadingCtrl = new LoadingCtrlMock();
             navCmpt = new NavCmptMock();
+            dom = window.document;
+            navCmpt.setDomMock(dom);
             mocks = {
                 authProvider:appAuth,
                 sessionProvider:appSession,
@@ -74,6 +80,8 @@ describe('app-page', () => {
             }
         });
         afterEach(() => {
+            window = null;
+            dom = null;
             appConn.restoreMock();
             errCtrl.restoreMock();
             errCtrl.resetMock();
@@ -88,38 +96,38 @@ describe('app-page', () => {
             appSession.resetMock();
         });
         it('should have a ion-page component', async () => {
-            await flush(element);
+            await window.flush();
             page = element.querySelector('ion-page');
             expect(page).not.toBeNull();
         });
         it('should have an app-header component', async () => {
-            await flush(element);
+            await window.flush();
             page = element.querySelector('ion-page');
             let header: HTMLElement = page.querySelector('app-header');
             expect(header).not.toBeNull();
         });
         it('should have an ion-content component', async () => {
-            await flush(element);
+            await window.flush();
             page = element.querySelector('ion-page');
             let content: HTMLElement = page.querySelector('ion-content');
             expect(content).not.toBeNull();
         });
         it('should have an app-logo component', async () => {
-            await flush(element);
+            await window.flush();
             page = element.querySelector('ion-page');
             let content: HTMLElement = page.querySelector('ion-content');
             let logo: HTMLElement = content.querySelector('app-logo');
             expect(logo).not.toBeNull();
         });
         it('should have a div with class text attribute', async () => {
-            await flush(element);
+            await window.flush();
             page = element.querySelector('ion-page');
             let content: HTMLElement = page.querySelector('ion-content');
             let div: HTMLElement = content.querySelector('.text');
             expect(div).not.toBeNull();
         });     
         it('should display a text', async () => {
-            await flush(element);
+            await window.flush();
             page = element.querySelector('ion-page');
             let content: HTMLElement = page.querySelector('ion-content');
             let div: HTMLElement = content.querySelector('.text');
@@ -127,7 +135,7 @@ describe('app-page', () => {
             expect(text.textContent).toEqual('Welcome to the Jeep PouchDB Application Starter');
         });
         it('should return status 400 when server disconnected and session null', async (done) => {
-            await flush(element);
+            await window.flush();
             defineSpys();
             appAuth.responseMock({status:400,message:'Application Server not connected'});
             element.initMocks(mocks).then(() => {
@@ -144,7 +152,7 @@ describe('app-page', () => {
 
         });
         it('should return status 400 when Application server connected DBServer disconnected and session null', async (done) => {
-            await flush(element);
+            await window.flush();
             defineSpys();
             let server:any = {status:200,result:{server:true,dbserver:false}};
             appAuth.responseMock(server);
@@ -161,7 +169,7 @@ describe('app-page', () => {
             });
         });
         it('should return status 200 when servers are connected and session exists', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -175,7 +183,7 @@ describe('app-page', () => {
             });
         });
         it('should return status 200 when servers are disconnected and session exists', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:400,message:'Application Server not connected'};
             element.initMocks(mocks).then(() => {
                 appAuth.dataReauthenticateMock({status:200});
@@ -190,7 +198,7 @@ describe('app-page', () => {
             });
         });
         it('should return status 400 when servers are connected and session expired', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             session.issued = 1517680659920;
             session.expires = 1517767059920;
@@ -206,7 +214,7 @@ describe('app-page', () => {
             });
         });
         it('should return status 400 when servers are connected and no session opended', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             element.initMocks(mocks).then(() => {
                 appAuth.dataReauthenticateMock({status:400,message: 'No session opened'});

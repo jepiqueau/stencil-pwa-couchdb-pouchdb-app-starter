@@ -1,4 +1,4 @@
-import { mockElement } from '@stencil/core/testing';
+import { mockElement } from './mock';
 import ToastMock from './toast';
 
 export const mockGetEl = mockElement('ion-toast-controller') as HTMLElement;

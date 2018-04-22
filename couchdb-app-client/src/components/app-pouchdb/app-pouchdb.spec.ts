@@ -1,8 +1,7 @@
-import { flush, render } from '@stencil/core/testing';
+import { TestWindow } from '@stencil/core/testing';
 import { AppPouchDB} from './app-pouchdb';
 import { POUCHDB_NAME, SERVER_ADDRESS, DESIGN_DOCS } from '../../global/constants';
 import { PDBOptions, News } from '../../global/interfaces'
-import { mockDeleteDoc } from '../../../__mocks__/app-pouchdb';
 
 
 var PouchDB = require('pouchDB-memory');
@@ -273,17 +272,23 @@ describe('app-pouchdb', () => {
                 done();
             });
         });
-    });
+
+     });
     describe('rendering', () => {
-        let element: any;
+        let window: TestWindow;
+        let element;
         beforeEach(async () => {
-            element = await render({
-                components: [AppPouchDB],
+          window = new TestWindow();
+          element = await window.load({
+                    components: [AppPouchDB],
                 html: '<app-pouchdb></app-pouchdb>'
             });
         });
+        afterEach(async () => {
+            window = null;
+          });           
         it('should render', async () => {
-            await flush(element);
+            await window.flush();
             expect(element).not.toBeNull();
         });
             

@@ -1,20 +1,22 @@
-import { mockWindow, mockDocument, mockElement } from '@stencil/core/testing';
+import { mockWindow, mockDocument } from './mock';
 import MenuMock from './menu';
 
 
 describe('menu', () => {
     let menu: any;
-    let win: Window;
+    let window: any;
     let dom: Document;
     beforeEach(async () => {
         menu = new MenuMock();        
-        win = mockWindow();
-        dom = mockDocument(win);
+        window = mockWindow();
+        dom = mockDocument();;
         await dom.body.appendChild(menu.el);    
       });
     afterEach(() => {
         menu.restoreMock();
         menu.resetMock();
+        window = null;
+        dom = null;
     });
     it('should create a Menu from mock', () => {
         expect(menu).toBeDefined;

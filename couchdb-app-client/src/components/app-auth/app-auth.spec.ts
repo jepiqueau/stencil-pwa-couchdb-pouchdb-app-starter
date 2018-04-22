@@ -1,4 +1,4 @@
-import { flush, render } from '@stencil/core/testing';
+import { TestWindow } from '@stencil/core/testing';
 import { AppAuth } from './app-auth';
 import { Session, PDBOptions, Credentials } from '../../global/interfaces';
 import { POUCHDB_NAME, SERVER_ADDRESS } from '../../global/constants';
@@ -314,25 +314,31 @@ describe('app-auth', () => {
         });
     });
     describe('app-auth rendering', () => {
+        let window: TestWindow;
         let element: any;
         beforeEach(async () => {
-            element = await render({
-                components: [AppAuth],
+          window = new TestWindow();
+          element = await window.load({
+                    components: [AppAuth],
                 html: '<app-auth></app-auth>'
             });
         });
+        afterEach(async () => {
+            window = null;
+        });
+      
         it('should render', async () => {
-            await flush(element);
+            await window.flush();
             expect(element).not.toBeNull();
         });
         it('should display an app-session element', async() => {
-            await flush(element);
-                let sessionEl:any = element.getElementsByTagName('app-session');
+            await window.flush();
+            let sessionEl:any = element.getElementsByTagName('app-session');
             expect(sessionEl).not.toBeNull();
         });
         it('should display an app-pouchdb element', async() => {
-            await flush(element);
-                let pouchDBEl:any = element.getElementsByTagName('app-pouchdb');
+            await window.flush();
+            let pouchDBEl:any = element.getElementsByTagName('app-pouchdb');
             expect(pouchDBEl).not.toBeNull();
         });
             

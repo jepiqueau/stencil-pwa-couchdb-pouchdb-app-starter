@@ -1,6 +1,6 @@
-import { mockElement } from '@stencil/core/testing';
+import { mockElement } from './mock';
 import PopoverMock from './popover';
-import { getValueFromKey, isKeyInArray, deleteKeyInArray } from './utilities';
+import { getValueFromKey, isKeyInArray, deleteKeyInArray, getHighestKey } from './utilities';
 
 export const mockGetEl = mockElement('ion-popover-controller') as HTMLElement;
 
@@ -15,31 +15,31 @@ export const mockCreate = jest.fn().mockImplementation((options?:any): Promise<a
         let opt: any = options ? options : null;
         let component: any = opt != null ? opt.component : null;
         let ev: any = opt != null ? opt.ev : null;
-        let data: any = opt != null ? opt.data : null;
-        if(component != null) popover.el.component = component;
-        if(ev != null) popover.el.ev = ev;
-        if(data != null) popover.el.data = data.data;
-        popover.setDataMock({component:component,data:data,ev:ev});
+        let componentProps: any = opt != null ? opt.componentProps : null;
+        popover.component = component != null ? component : null;
+        popover.ev = ev != null ? ev : null;
+        popover.componentProps = componentProps != null ? componentProps : null;
         popovers =[...popovers,{key:popId++,value:popover}];
         resolve(popover);
     });
 });
-export const mockDismiss = jest.fn().mockImplementation((popoverId:number): Promise<any> => {
+export const mockDismiss = jest.fn().mockImplementation((popoverId:number = -1): Promise<any> => {
     return new Promise((resolve) => {
-        getValueFromKey(popovers,popoverId).then((poverToDismiss) => {
-            deleteKeyInArray(popovers,popoverId).then(() => {
-                poverToDismiss.dismiss().then(() => {
-                    resolve({});
-                });       
-            });
-    
-        });        
+        popoverId = popoverId >= 0 ? popoverId : getHighestKey(popovers);
+        let poverToDismiss: any = getValueFromKey(popovers,popoverId);
+        deleteKeyInArray(popovers,popoverId);
+        poverToDismiss.dismiss().then(() => {
+            resolve({});
+        });           
     });
 });
-export const getPopoverMock = jest.fn().mockImplementation(async (pId:number): Promise<any> => {
-    let res:boolean = await isKeyInArray (popovers,pId);
+export const mockGetTop = jest.fn().mockImplementation((): any => {
+    return popover;
+});
+export const getPopoverMock = jest.fn().mockImplementation((pId:number): Promise<any> => {
+    let res:boolean = isKeyInArray (popovers,pId);
     if(!res) return Promise.resolve(false);
-    let value:any = await getValueFromKey(popovers,pId);
+    let value:any = getValueFromKey(popovers,pId);
     return Promise.resolve(value);
 });
 export const getPopoversMock = jest.fn().mockImplementation((): Promise<any> => {
@@ -57,6 +57,7 @@ const mockPopoverController = jest.fn().mockImplementation(() => {
         el: mockGetEl,
         create: mockCreate,
         dismiss: mockDismiss,
+        getTop: mockGetTop,
         getPopoverMock: getPopoverMock,
         getPopoversMock: getPopoversMock,
         restoreMock: restoreMock,

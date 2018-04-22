@@ -9,6 +9,7 @@ import { initializeComponents, initializeMocks, checkServersConnected } from '..
 })
 export class AppHome {
   @Prop({ connect: 'ion-loading-controller' }) loadingCtrl: LoadingController;
+  @Prop() mode: string;
   @State() isRender: boolean = false;
 
   private _comps: any;
@@ -25,12 +26,13 @@ export class AppHome {
       return initializeMocks(this._comps,mocks);
   }
   @Method()
+  getComps():any {
+    return this._comps;
+  }
+
+  @Method()
   setConMode(): Promise<void> {
     return this._setConMode();
-  }
-  @Method()
-  handleToggleMenu(): void {
-    this._handleToggleMenu();
   }
   @Method()
   isServersConnected(): Promise<void> {
@@ -47,21 +49,13 @@ export class AppHome {
       });
   
   }
-  async _setConMode(): Promise<void> {
-    if(this._comps.connectionProvider != null && this._comps.menuCtrl != null
-      && this._comps.navCmpt != null) {
-      if(this._comps.navCmpt.getActive() === null || 
-              this._comps.navCmpt.getActive().data === null ||
-              typeof this._comps.navCmpt.getActive().data === 'undefined' ||
-              !this._comps.navCmpt.getActive().data['mode']) {
-        if(this._comps.connectionProvider) {
+  async _setConMode(): Promise<void> {    
+    if(this._comps.connectionProvider != null ) {
           this._conMode = await this._comps.connectionProvider.getConnection();
-        }
-      } else {
-        this._conMode =  this._comps.navCmpt.getActive().data['mode'];
-      }
-      this.isRender = true;
-    }                        
+    } else {
+        this._conMode =  this.mode ? this.mode : "";
+    }
+    this.isRender = true;
     return Promise.resolve();
   }
   async _handleToggleMenu() {
@@ -79,7 +73,7 @@ export class AppHome {
               <h2>Welcome to the Jeep PouchDB Application Starter</h2>
               <h3>based on the Ionic PWA Toolkit</h3>
           </div>
-          <ion-button fill='solid'  expand="block" onClick={() => this.handleToggleMenu()} class="menu-button" ion-button>
+          <ion-button fill='solid'  expand="block" onClick={() => this._handleToggleMenu()} class="menu-button" ion-button>
             Menu
           </ion-button>
         </ion-content>

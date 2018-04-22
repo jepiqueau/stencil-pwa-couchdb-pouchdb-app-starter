@@ -170,9 +170,11 @@ export class AppPouchDB {
     }
     @Method()
     getTextAttachments(docId:string,name:string): Promise<any> {
-        return Promise.resolve(this._db.get(docId, {attachments: true}).then(res => {
-            if(!res._attachments || !res._attachments[name+'.text']) return {ok:false};
+        return Promise.resolve(this._db.get(docId, {attachments: true})
+        .then(res => {
             return {ok: true, text:window.atob(res._attachments[name+'.text'].data)};
+        }).catch(err => {
+            return {ok: false, message: err.message}
         }));
     }
     async componentWillLoad() {

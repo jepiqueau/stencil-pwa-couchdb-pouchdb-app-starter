@@ -14,6 +14,7 @@ export class AppNewsCreate {
   @State() title: string = '';
   @State() content: string = '';
   @State() author: string = '';
+
   @Prop({ connect: 'ion-loading-controller' }) loadingCtrl: LoadingController;
 
   @Method()
@@ -44,7 +45,6 @@ export class AppNewsCreate {
   handleChangeNewsContent(content:string): Promise<void> {
     return this._handleChangeNewsContent(content);
   }
-
   private _title: HTMLElement;
   private _author: HTMLElement;
   private _content: HTMLElement;
@@ -181,7 +181,6 @@ export class AppNewsCreate {
         if(this._button.classList.contains('visible')) this._button.classList.remove('visible');
       }
   }
-
   // rendering
   render() {
     return (

@@ -1,4 +1,4 @@
-import { mockElement } from '@stencil/core/testing';
+import { mockElement } from './mock';
 
 export const mockGetEl = mockElement('app-session') as HTMLElement;
 let currentSession : any = null;

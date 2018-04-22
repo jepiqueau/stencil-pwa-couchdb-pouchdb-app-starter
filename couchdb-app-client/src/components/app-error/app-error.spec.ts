@@ -1,4 +1,4 @@
-import { flush, render } from '@stencil/core/testing';
+import { TestWindow } from '@stencil/core/testing';
 import { AppError} from './app-error';
 import ToastCtrlMock from '../../../__mocks__/toastcontroller';
 
@@ -30,15 +30,20 @@ describe('app-error', () => {
     });
 
     describe('app-error rendering', () => {
-        let element: any;
+        let window: TestWindow;
+        let element;
         beforeEach(async () => {
-            element = await render({
-                components: [AppError],
+            window = new TestWindow();
+            element = await window.load({
+                      components: [AppError],
                 html: '<app-error></app-error>'
             });
         });
+        afterEach(async () => {
+            window = null;
+        });
         it('should render', async () => {
-            await flush(element);
+            await window.flush();
             expect(element).not.toBeNull();
         });
             

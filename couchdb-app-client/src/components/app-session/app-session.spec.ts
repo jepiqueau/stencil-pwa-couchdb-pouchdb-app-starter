@@ -1,4 +1,4 @@
-import { flush, render } from '@stencil/core/testing';
+import { TestWindow } from '@stencil/core/testing';
 import { AppSession} from './app-session';
 import { Session } from '../../global/interfaces';
 import { LOCALSTORE_NAME } from '../../global/constants';
@@ -92,14 +92,20 @@ describe('app-session', () => {
     });
     describe('rendering', () => {
         let element: any;
+        let window: TestWindow;
         beforeEach(async () => {
-            element = await render({
-                components: [AppSession],
+            window = new TestWindow();
+            element = await window.load({
+                      components: [AppSession],
                 html: '<app-session></app-session>'
             });
         });
+        afterEach(async () => {
+            window = null;
+          });
+              
         it('should render', async () => {
-            await flush(element);
+            await window.flush();
             expect(element).not.toBeNull();
         });
             

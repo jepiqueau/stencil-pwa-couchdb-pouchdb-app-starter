@@ -1,4 +1,5 @@
-import { Component, Element, Method, State } from '@stencil/core';
+import { Component, Element, Method, State, Prop, Event, EventEmitter} from '@stencil/core';
+import { ComponentRef, ComponentProps } from '@ionic/core';
 import { initializeComponents, initializeMocks } from '../../helpers/ui-utilities';
 
 
@@ -7,9 +8,15 @@ import { initializeComponents, initializeMocks } from '../../helpers/ui-utilitie
   styleUrl: 'app-popover.scss'
 })
 export class AppPopover {
-  @Element() el: HTMLIonPopoverElement;
-  @State() isRender : boolean = false;
+  @Element() el: HTMLElement;
+  @Prop() component: ComponentRef;
+  @Prop() componentProps: ComponentProps;
+  @Prop() ev: any;
+  @State() data: Array<any> = [];
+  @Event() itemClick : EventEmitter;
+
   private _comps:any;
+  private _popover: HTMLIonPopoverElement;
 
   @Method()
   initMocks(mocks:any): Promise<void> {
@@ -18,11 +25,9 @@ export class AppPopover {
     return initializeMocks(this._comps,mocks);
   }
   @Method()
-  setData (data: Array<any>): Promise<void> { 
+  setData (): Promise<void> { 
     // used for unit testing only
-    this.el.data = data;
-    this.isRender = true;
-    return Promise.resolve();  
+    return this._setData();  
   }
   @Method()
   handleClick(item:string) {
@@ -30,21 +35,33 @@ export class AppPopover {
   }
   componentWillLoad() {
     this._comps = {navCmpt:true,popoverCtrl:true};
-    initializeComponents(this._comps).then(()=> {
-    })
+    initializeComponents(this._comps).then(async ()=> {
+      await this._setData();
+    });
   }
-  _handleClickEvent(event: UIEvent) {
-    this._handleClick(event.srcElement.textContent);
+  _setData():Promise<void> {
+    if(this._comps.popoverCtrl != null ) {
+      this._popover = this._comps.popoverCtrl.getTop();
+      if(this._popover.componentProps && this._popover.componentProps.data ) {
+        this.data = this._popover.componentProps.data;
+      }
+    }
+    return Promise.resolve();
+  }
+
+  _handleClickEvent(event) {
+    this._handleClick(event.target.textContent);
   }
   async _handleClick(text:string) {
-    this._comps.popoverCtrl.dismiss();
-    let selObj: any = this.el.data.find(s => s.value === text);
-    this._comps.navCmpt.setRoot(selObj.cmp);
+    let selObj: any = this.data.find(s => s.value === text);
+    await this._comps.popoverCtrl.dismiss();
+    await this._comps.navCmpt.push(selObj.cmp);
+    this.itemClick.emit();
   }
   render() {
-    if(this.el.data) {
-      const listTitle: string = this.el.data[0].value.split(' ')[0];
-      const list = this.el.data.map((item) => {
+    if(this.data.length > 0) {
+      const listTitle: string = this.data[0].value.split(' ')[0];
+      const list = this.data.map((item) => {
         return (
           <ion-item onClick={ (event: UIEvent) => this._handleClickEvent(event)}>
             <ion-label>{item.value}</ion-label>

@@ -1,5 +1,5 @@
-import '@ionic/core';
-import '@stencil/core';
+//import '@ionic/core';
+//import '@stencil/core';
 import { Component, Prop, /*Listen*/ } from '@stencil/core';
 import { ToastController } from '@ionic/core';
 
@@ -11,6 +11,7 @@ export class AppMain {
   @Prop({ connect: 'ion-toast-controller' }) toastCtrl: ToastController;
 
   componentDidLoad() {
+
     /*
       Handle service worker updates correctly.
       This code will show a toast letting the
@@ -30,6 +31,7 @@ export class AppMain {
       });
     })
   }
+
 // had to be commented as ToastController is used in others web components to lauch the error messages
 // this problem has been reported to the Stencil team
 /*
@@ -44,14 +46,15 @@ export class AppMain {
     return (
       <ion-app>
         <ion-router>
-          <ion-route path="/" component="app-page"></ion-route>
-          <ion-route path="/login" component="app-login"></ion-route>
-          <ion-route path="/register" component="app-register"></ion-route>
-          <ion-route path="/home" component="app-home"></ion-route>
-          <ion-route path="/news/create" component="app-news-create"></ion-route>
-          <ion-route path="/news/display" component="app-news-display"></ion-route>  
-          <ion-route path="/news/display/item/:itemObj" component="app-news-item"></ion-route>  
-          <ion-route path='/profile/:name' component="app-profile"></ion-route>
+          <ion-route url="/" component="app-page"></ion-route>
+          <ion-route url="/login" component="app-login"></ion-route>
+          <ion-route url="/register"component="app-register"></ion-route>
+          <ion-route url="/home/:mode"component="app-home"></ion-route>
+          <ion-route url="/news/create" component="app-news-create"></ion-route>
+          <ion-route url="/news/create/attachments:multiple" component="app-files-selection"></ion-route>
+          <ion-route url="/news/display" component="app-news-display"></ion-route>  
+          <ion-route url="/news/display/item/:itemObj" component="app-news-item"></ion-route>  
+          <ion-route url="/profile/:name" component="app-profile"></ion-route>
         </ion-router>
         <ion-nav id="navId" root="app-page"></ion-nav> 
         <app-menu></app-menu>
@@ -65,3 +68,6 @@ export class AppMain {
     );
   }
 }
+/*
+
+*/

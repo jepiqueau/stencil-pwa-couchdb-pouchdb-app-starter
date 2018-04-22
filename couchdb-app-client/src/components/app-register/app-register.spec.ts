@@ -1,4 +1,4 @@
-import { flush, render } from '@stencil/core/testing';
+import { TestWindow } from '@stencil/core/testing';
 import { AppRegister} from './app-register';
 import AppAuthMock from '../../../__mocks__/app-auth';
 import AppSessionMock from '../../../__mocks__/app-session';
@@ -22,9 +22,12 @@ describe('app-register', () => {
         let mocks:any;
         let page: HTMLElement;
         let session: Session;
+        let window: TestWindow;
+        let dom: Document;
         beforeEach(async () => {
-            element = await render({
-                components: [AppRegister],
+            window = new TestWindow();
+            element = await window.load({
+                      components: [AppRegister],
                 html: '<app-register></app-register>'
             });
             appAuth = new AppAuthMock();
@@ -32,6 +35,8 @@ describe('app-register', () => {
             errCtrl = new ErrCtrlMock();
             loadingCtrl = new LoadingCtrlMock();
             navCmpt = new NavCmptMock();
+            dom = window.document;
+            navCmpt.setDomMock(dom);
             mocks = {
                 authProvider:appAuth,
                 sessionProvider:appSession,
@@ -54,6 +59,8 @@ describe('app-register', () => {
             };
         });
         afterEach(async() => {
+            window = null;
+            dom = null;
             appAuth.restoreMock();
             appSession.restoreMock();
             errCtrl.restoreMock();
@@ -66,31 +73,31 @@ describe('app-register', () => {
             loadingCtrl.resetMock();
         });
         it('should have a ion-page component', async () => {
-            await flush(element);
+            await window.flush();
             page = element.querySelector('ion-page');
             expect(page).not.toBeNull();
         });
         it('should have an app-header component', async () => {
-            await flush(element);
+            await window.flush();
             page = element.querySelector('ion-page');
             let header: HTMLElement = page.querySelector('app-header');
             expect(header).not.toBeNull();
         });
         it('should have an ion-content component', async () => {
-            await flush(element);
+            await window.flush();
             page = element.querySelector('ion-page');
             let content: HTMLElement = page.querySelector('ion-content');
             expect(content).not.toBeNull();
         });
         it('should have a register-card ', async () => {
-            await flush(element);
+            await window.flush();
             page = element.querySelector('ion-page');
             let content: HTMLElement = page.querySelector('ion-content');
             let card: HTMLElement = content.querySelector('#register-card'); 
             expect(card).not.toBeNull();
         });
         it('should have a form with 6 entries ', async () => {
-            await flush(element);
+            await window.flush();
             page = element.querySelector('ion-page');
             let content: HTMLElement = page.querySelector('ion-content');
             let card: HTMLElement = content.querySelector('#register-card');
@@ -104,7 +111,7 @@ describe('app-register', () => {
             expect(inputs[5].getAttribute('id')).toEqual('register');
         });
         it('should return status 400 when server disconnected', async () => {
-            await flush(element);
+            await window.flush();
             appAuth.responseMock({status:400,message:'Application Server not connected'});
             await element.initMocks(mocks);
             await element.isServersConnected();
@@ -112,23 +119,23 @@ describe('app-register', () => {
             expect(navCmpt.getPageMock()).toEqual('app-page');
         });
         it('should return status 200 when servers are connected', async () => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             appAuth.responseMock(server);
             await element.initMocks(mocks);
             await element.isServersConnected();
         });
         it('should return error message when name input not valid (length <3)', async () => {
-            await flush(element);
+            await window.flush();
             await element.initMocks(mocks);
             await element.handleChangeName('Co',10);
-            await flush(element);
+            await window.flush();
             expect(errCtrl.getMessageMock()).toEqual(ERROR_NAME);                    
             let input:HTMLInputElement = element.querySelector('#name');
             expect(input.classList.contains('validated')).toBeFalsy();
         });
         it('should return error message when name input not valid (length > 25)', async () => {
-            await flush(element);
+            await window.flush();
             await element.initMocks(mocks);
             await element.handleChangeName('Juan Carlos Hernandez Lopez',10);
             expect(errCtrl.getMessageMock()).toEqual(ERROR_NAME);                    
@@ -136,52 +143,52 @@ describe('app-register', () => {
             expect(input.classList.contains('validated')).toBeFalsy();
         });
         it('should return successful when name input is valid (3 < length > 25)', async () => {
-            await flush(element);
+            await window.flush();
             await element.initMocks(mocks);
             await element.handleChangeName('Colin Smith',10);
             let input:HTMLInputElement = element.querySelector('#name');
             expect(input.classList.contains('validated')).toBeTruthy();
         });
         it('should return error message when email input not valid (no @)', async () => {
-            await flush(element);
+            await window.flush();
             await element.initMocks(mocks);
             await element.handleChangeEmail('jeep.com',10);
-            await flush(element);
+            await window.flush();
             expect(errCtrl.getMessageMock()).toEqual(ERROR_EMAIL);                    
             let input:HTMLInputElement = element.querySelector('#email');
             expect(input.classList.contains('validated')).toBeFalsy();
         });
         it('should return error message when email input not valid (no . after @)', async () => {
-            await flush(element);
+            await window.flush();
             await element.initMocks(mocks);
             await element.handleChangeEmail('jeep@example',10);
-            await flush(element);
+            await window.flush();
             expect(errCtrl.getMessageMock()).toEqual(ERROR_EMAIL);                    
             let input:HTMLInputElement = element.querySelector('#email');
             expect(input.classList.contains('validated')).toBeFalsy();
         });
         it('should return error message when email input valid and already existing in CouchDB', async () => {
-            await flush(element);
+            await window.flush();
             appAuth.responseMock({"status":409, "message":"Conflict: Email already in use"})
             await element.initMocks(mocks);
             await element.handleChangeEmail('jeep@example.com',10);
-            await flush(element);
+            await window.flush();
             expect(errCtrl.getMessageMock()).toEqual("Conflict: Email already in use");                    
             let input:HTMLInputElement = element.querySelector('#email');
             expect(input.classList.contains('validated')).toBeFalsy();
         });
         it('should return successful when email input valid and not existing in CouchDB', async () => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             appAuth.responseMock(server);
             await element.initMocks(mocks);
             await element.handleChangeEmail('jeep@example.com',10);
-            await flush(element);
+            await window.flush();
             let input:HTMLInputElement = element.querySelector('#email');
             expect(input.classList.contains('validated')).toBeTruthy();
         });
         it('should return error message when username input not valid', async () => {
-            await flush(element);
+            await window.flush();
             await element.initMocks(mocks);
             await element.handleChangeUsername('jp',10);
             expect(errCtrl.getMessageMock()).toEqual(ERROR_USERNAME);                    
@@ -189,7 +196,7 @@ describe('app-register', () => {
             expect(input.classList.contains('validated')).toBeFalsy();
         });
         it('should return error message when username input is valid and already existing in CouchDB', async () => {
-            await flush(element);
+            await window.flush();
             appAuth.responseMock({"status":409, "message":"Conflict: Username already in use"})
             await element.initMocks(mocks);
             await element.handleChangeUsername('jeep',10);
@@ -198,7 +205,7 @@ describe('app-register', () => {
             expect(input.classList.contains('validated')).toBeFalsy();
         });
         it('should return successful when username input is valid and not existing in CouchDB', async () => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             appAuth.responseMock(server);
             await element.initMocks(mocks);
@@ -207,7 +214,7 @@ describe('app-register', () => {
             expect(input.classList.contains('validated')).toBeTruthy();
         });
         it('should return error message when password input not valid', async () => {
-            await flush(element);
+            await window.flush();
             await element.initMocks(mocks);
             await element.handleChangePassword('jeep',10);
             expect(errCtrl.getMessageMock()).toEqual(ERROR_PASSWORD);                    
@@ -215,14 +222,14 @@ describe('app-register', () => {
             expect(input.classList.contains('validated')).toBeFalsy();
         });
         it('should return successful when password is valid', async () => {
-            await flush(element);
+            await window.flush();
             await element.initMocks(mocks);
             await element.handleChangePassword('Test12',10);
             let input:HTMLInputElement = element.querySelector('#password');
             expect(input.classList.contains('validated')).toBeTruthy();
         });
         it('should return error message when confirm password input not valid', async () => {
-            await flush(element);
+            await window.flush();
             await element.initMocks(mocks);
             await element.handleChangePassword('jeep',10);
             expect(errCtrl.getMessageMock()).toEqual(ERROR_PASSWORD);                    
@@ -230,7 +237,7 @@ describe('app-register', () => {
             expect(input.classList.contains('validated')).toBeFalsy();
         });
         it('should return error message when confirm password input valid and not equal to password', async () => {
-            await flush(element);
+            await window.flush();
             await element.initMocks(mocks);
             await element.handleChangePassword('Test12',10);
             await element.handleChangeConfirmPassword('Test13',10);
@@ -239,7 +246,7 @@ describe('app-register', () => {
             expect(input.classList.contains('validated')).toBeFalsy();
         });
         it('should return successful when confirm password input valid and equal to password', async () => {
-            await flush(element);
+            await window.flush();
             await element.initMocks(mocks);
             await element.handleChangePassword('Test12',10);
             await element.handleChangeConfirmPassword('Test12',10);
@@ -247,7 +254,7 @@ describe('app-register', () => {
             expect(input.classList.contains('validated')).toBeTruthy();
         });
         it('should return button visibility to false when not all inputs filled in', async () => {
-            await flush(element);
+            await window.flush();
             await element.initMocks(mocks);
             await element.handleChangePassword('Test12',10);
             await element.handleChangeConfirmPassword('Test12',10);
@@ -257,7 +264,7 @@ describe('app-register', () => {
             expect(button.classList.contains('visible')).toBeFalsy();
         });
         it('should return button visibility to true when all inputs filled in', async () => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             appAuth.responseMock(server);
             await element.initMocks(mocks);
@@ -272,7 +279,7 @@ describe('app-register', () => {
             expect(button.classList.contains('visible')).toBeTruthy();
         });
         it('should navigate to "Home" when clicking on "Create your account" button when all inputs filled in', async () => {
-            await flush(element);
+            await window.flush();
             appAuth.responseMock({status:200 , result:session});
             await appSession.saveSessionData(session);
             await element.initMocks(mocks);
@@ -285,7 +292,7 @@ describe('app-register', () => {
             expect(navCmpt.getPageMock()).toEqual('app-home');
         });
         it('should display error when clicking on "Create your account" button when all inputs filled in and CouchDB error', async () => {
-            await flush(element);
+            await window.flush();
             appAuth.responseMock({status:400 , message:'Bad Request'});
             await appSession.saveSessionData(session);
             await element.initMocks(mocks);

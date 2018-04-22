@@ -1,4 +1,4 @@
-import { render, flush } from '@stencil/core/testing';
+import { TestWindow } from '@stencil/core/testing';
 import { AppNewsDisplay } from './app-news-display';
 import AppAuthMock from '../../../__mocks__/app-auth';
 import AppSessionMock from '../../../__mocks__/app-session';
@@ -25,6 +25,8 @@ describe('app-news-display', () => {
         let navCmpt: any;
         let loadingCtrl: any;
         let mocks: any;
+        let window: TestWindow;
+        let dom: Document;
         let news: News = {
             _id: "3925738c-8537-44ab-a771-2a73f87fb61d",
             _rev: "2-65642c4e1b734ae698ddd6c7af46c107",
@@ -79,8 +81,9 @@ describe('app-news-display', () => {
             }            
         };
         beforeEach(async () => {
-            element = await render({
-                components: [AppNewsDisplay],
+            window = new TestWindow();
+            element = await window.load({
+                      components: [AppNewsDisplay],
                 html: '<app-news-display></app-news-display'
             });
             page = element.querySelector('ion-page');
@@ -91,6 +94,8 @@ describe('app-news-display', () => {
             errCtrl = new ErrCtrlMock();
             loadingCtrl = new LoadingCtrlMock();
             navCmpt = new NavCmptMock();
+            dom = window.document;
+            navCmpt.setDomMock(dom);
             mocks = {
                 authProvider:appAuth,
                 sessionProvider:appSession,
@@ -119,27 +124,27 @@ describe('app-news-display', () => {
             
         });
         it('should have a ion-page component', async () => {
-            await flush(element);
+            await window.flush();
             expect(page).not.toBeNull();
         });
         it('should have an app-header component', async () => {
-            await flush(element);
+            await window.flush();
             let header: HTMLElement = page.querySelector('app-header');
             expect(header).not.toBeNull();
         });
         it('should have an ion-content component', async () => {
-            await flush(element);
+            await window.flush();
             let content: HTMLElement = page.querySelector('ion-content');
             expect(content).not.toBeNull();
         });
         it('should not have a news-display-card ', async () => {
-            await flush(element);
+            await window.flush();
             let content: HTMLElement = page.querySelector('ion-content');
             let card: HTMLIonCardElement = content.querySelector('#news-display-card'); 
             expect(card).toBeNull();
         });
         it('should return a "fake" card ', async () => {
-            await flush(element);
+            await window.flush();
             let content: HTMLElement = page.querySelector('ion-content');
             let card: HTMLElement = content.querySelector('#fake-card'); 
             expect(card).not.toBeNull();
@@ -147,7 +152,7 @@ describe('app-news-display', () => {
         it('should have a news-display-card ', async () => {
             element.setNews([news]);
             await element.initMocks(mocks);
-            await flush(element);
+            await window.flush();
             let content: HTMLElement = page.querySelector('ion-content');
             let card: HTMLIonCardElement = content.querySelector('#news-display-card'); 
             expect(card).not.toBeNull();
@@ -155,7 +160,7 @@ describe('app-news-display', () => {
         it('should have a title in the ion-card-header ', async () => {
             element.setNews([news]);
             await element.initMocks(mocks);
-            await flush(element);
+            await window.flush();
             page = element.querySelector('ion-page');
             let content: HTMLElement = page.querySelector('ion-content');
             let card: HTMLIonCardElement = content.querySelector('#news-display-card');
@@ -168,7 +173,7 @@ describe('app-news-display', () => {
         it('should have a ion-card-content with two childs ', async () => {
             element.setNews([news]);
             await element.initMocks(mocks);
-            await flush(element);
+            await window.flush();
             page = element.querySelector('ion-page');
             let content: HTMLElement = page.querySelector('ion-content');
             let card: HTMLIonCardElement = content.querySelector('#news-display-card');
@@ -181,14 +186,14 @@ describe('app-news-display', () => {
             expect(inputs[1].getAttribute('id')).toEqual('button');
         });
         it('should return status 400 when server disconnected and session null', async () => {
-            await flush(element);
+            await window.flush();
             appAuth.responseMock({status:400,message:'Application Server not connected'});
             await element.initMocks(mocks);
             await element.isServersConnected();
             expect(errCtrl.getMessageMock()).toEqual("Application Server not connected");                    
         });
         it('should return status 400 when Application server connected DBServer disconnected and session null', async () => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:false}};
             appAuth.responseMock(server);
             await element.initMocks(mocks);
@@ -196,7 +201,7 @@ describe('app-news-display', () => {
             expect(errCtrl.getMessageMock()).toEqual("Application Server not connected");                    
         });
         it('should return status 200 when servers are connected and session exists', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -209,7 +214,7 @@ describe('app-news-display', () => {
             });
         });
         it('should return status 200 when servers are disconnected and session exists', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:400,message:'Application Server not connected'};
             element.initMocks(mocks).then(() => {
                 appAuth.dataReauthenticateMock({status:200});
@@ -223,7 +228,7 @@ describe('app-news-display', () => {
             });
         });
         it('should return status 400 when servers are connected and session expired', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             session.issued = 1517680659920;
             session.expires = 1517767059920;
@@ -239,7 +244,7 @@ describe('app-news-display', () => {
             });
          });
         it('should return status 400 when servers are connected and no session opended', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             element.initMocks(mocks).then(() => {
                 appAuth.dataReauthenticateMock({status:400,message: 'No session opened'});
@@ -252,7 +257,7 @@ describe('app-news-display', () => {
             });
         });
         it('should return a "fake" card if no news store in PouchDB', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -267,7 +272,7 @@ describe('app-news-display', () => {
             });
         });
         it('should display two cards from PouchDB', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -279,7 +284,7 @@ describe('app-news-display', () => {
                     let retNews: Array<News> = await element.getNews();
                     expect(retNews.length).toEqual(2);
                     element.setNews(retNews);
-                    await flush(element);
+                    await window.flush();
                     let content: HTMLElement = page.querySelector('ion-content');
                     let list: HTMLIonListElement = content.querySelector('ion-list');
                     let cards: NodeListOf<HTMLIonCardElement>  = list.querySelectorAll("ion-card");
@@ -289,7 +294,7 @@ describe('app-news-display', () => {
             });
         });
         it('should display the fist card with title = "News for testing" ', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -300,7 +305,7 @@ describe('app-news-display', () => {
                 element.isServersConnected().then(async () => {
                     let retNews: Array<News> = await element.getNews();
                     element.setNews(retNews);
-                    await flush(element);
+                    await window.flush();
                     let content: HTMLElement = page.querySelector('ion-content');
                     let list: HTMLIonListElement = content.querySelector('ion-list');
                     let cards: NodeListOf<HTMLIonCardElement>  = list.querySelectorAll("ion-card");
@@ -313,7 +318,7 @@ describe('app-news-display', () => {
             });
         });
         it('should display the second card with title = "Second News for Testing" ', async (done) => {
-            await flush(element);
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -324,7 +329,7 @@ describe('app-news-display', () => {
                 element.isServersConnected().then(async () => {
                     let retNews: Array<News> = await element.getNews();
                     element.setNews(retNews);
-                    await flush(element);
+                    await window.flush();
                     let content: HTMLElement = page.querySelector('ion-content');
                     let list: HTMLIonListElement = content.querySelector('ion-list');
                     let cards: NodeListOf<HTMLIonCardElement>  = list.querySelectorAll("ion-card");
@@ -336,8 +341,8 @@ describe('app-news-display', () => {
                 });
             });
         });
-        it('should route to the item page when clicking on tyhe more button', async (done) => {
-            await flush(element);
+        it('should route to the item page when clicking on the more button', async (done) => {
+            await window.flush();
             let server:any = {status:200,result:{server:true,dbserver:true}};
             await appSession.saveSessionData(session);
             appAuth.dataReauthenticateMock({status:200});
@@ -348,7 +353,7 @@ describe('app-news-display', () => {
                 element.isServersConnected().then(async () => {
                     let retNews: Array<News> = await element.getNews();
                     element.setNews(retNews);
-                    await flush(element);
+                    await window.flush();
                     let content: HTMLElement = page.querySelector('ion-content');
                     let list: HTMLIonListElement = content.querySelector('ion-list');
                     let cards: NodeListOf<HTMLIonCardElement>  = list.querySelectorAll("ion-card");

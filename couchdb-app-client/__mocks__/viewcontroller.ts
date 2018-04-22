@@ -1,6 +1,7 @@
-import { NavParams } from '@ionic/core/dist/types/components/nav/nav-util';
+import { ComponentProps } from '@ionic/core';
+
 let view :any = null;
-let navParams:NavParams = null;
+let navParams:ComponentProps = null;
 export const constructorMock = jest.fn().mockImplementation((component:string,data?:any) => {
     view = component;
     navParams= data;

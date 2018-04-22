@@ -1,6 +1,6 @@
 import { Component, Prop, Element, Method } from '@stencil/core';
-import { ActiveRouter } from '@stencil/router';
-import { initializeComponents, initializeMocks } from '../../helpers/ui-utilities';
+import { initializeComponents, initializeMocks, 
+         getModalController} from '../../helpers/ui-utilities';
 
 @Component({
   tag: 'app-header',
@@ -8,17 +8,19 @@ import { initializeComponents, initializeMocks } from '../../helpers/ui-utilitie
 })
 export class AppHeader {
   _title: string;
+  _modal: boolean;
   _logout: boolean;
   _back: boolean;
   _menu: boolean;
   _comps: any;
-  
+  private _modalCtrl : HTMLIonModalControllerElement;
+
   @Element() el: HTMLElement;
-  @Prop() menu;
-  @Prop() htitle;
-  @Prop() logout;
-  @Prop() back;
-  @Prop({ context: 'activeRouter'}) activeRouter: ActiveRouter;
+  @Prop() menu: boolean;
+  @Prop() htitle: string;
+  @Prop() logout: boolean;
+  @Prop() back: boolean;
+  @Prop() cmodal: boolean;
   @Method()
   handleLogout() {
     this._handleLogout();
@@ -26,6 +28,10 @@ export class AppHeader {
   @Method()
   handleBack() {
     this._handleBack();
+  }
+  @Method()
+  handleModal() {
+    this._handleModal();
   }
   @Method()
   initMocks(mocks:any): Promise<void> {
@@ -51,11 +57,21 @@ export class AppHeader {
       }
     });
   }
-  _handleBack() {
-    this._comps.navCmpt.pop();
+  async _handleBack() {
+    if(this._comps.navCmpt && this._comps.navCmpt.canGoBack()) {
+      this._comps.navCmpt.pop();      
+    } else {
+      this._comps.navCmpt.setRoot('app-home');      
+    }
+  }
+  async _handleModal() {
+    this._modalCtrl = await getModalController();
+    await this._modalCtrl.componentOnReady();
+    this._modalCtrl.dismiss();
   }
   // rendering
   render() {
+    this._modal = this.cmodal ? true : false;
     this._logout = this.logout ? true : false;
     this._menu = this.menu ? true : false;
     this._back = !this._menu && this.back ? true : false;
@@ -63,7 +79,7 @@ export class AppHeader {
     const header = [
         <ion-header md-height="56px">
         <ion-toolbar color='dark'>
-          {this._menu ? <ion-menu-button></ion-menu-button>: null}
+          {this._menu ? <ion-menu-button class="menu-toggle-button"></ion-menu-button>: null}
           {this._back ? <ion-buttons slot='start'>
             <ion-button fill='clear' onClick={() => this._handleBack()} class="back-button" ion-button  icon-only>
               <ion-icon class='icon-back' name="arrow-back"></ion-icon>
@@ -73,6 +89,11 @@ export class AppHeader {
           {this._logout ? <ion-buttons slot='end'>
             <ion-button fill='clear' onClick={() => this._handleLogout()} class="logout-button" ion-button  icon-only>
               <ion-icon class='icon-logout' name="log-out"></ion-icon>
+            </ion-button>
+          </ion-buttons> : null}
+          {this._modal ? <ion-buttons slot='end'>
+            <ion-button fill='clear' onClick={() => this._handleModal()} class="modal-button" ion-button  icon-only>
+              <ion-icon class='icon-modal' name="close"></ion-icon>
             </ion-button>
           </ion-buttons> : null}
           </ion-toolbar>

@@ -1,4 +1,4 @@
-import { mockElement } from '@stencil/core/testing';
+import { mockElement } from './mock';
 import NavMock from './nav';
 let nav: any = null;
 

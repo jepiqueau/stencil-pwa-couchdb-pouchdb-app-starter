@@ -1,4 +1,4 @@
-import { mockElement } from '@stencil/core/testing';
+import { mockElement } from './mock';
 import LoadingMock from './loading';
 
 export const mockGetEl = mockElement('ion-loading-controller') as HTMLElement;

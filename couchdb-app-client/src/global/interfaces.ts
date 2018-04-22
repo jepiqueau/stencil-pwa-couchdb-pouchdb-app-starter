@@ -40,7 +40,7 @@ export interface News {
 }
 export interface PopOptions {
     component: any;
-    data?: any;
+    componentProps?: any;
     ev: Event;
 }
 

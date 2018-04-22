@@ -3,6 +3,9 @@
  * It contains typing information for all components that exist in this project
  * and imports for stencil collections that might be configured in your stencil.config.js file
  */
+
+import '@stencil/core';
+
 declare global {
   namespace JSX {
     interface Element {}
@@ -13,6 +16,8 @@ declare global {
   interface HTMLStencilElement extends HTMLElement {
     componentOnReady(): Promise<this>;
     componentOnReady(done: (ele?: this) => void): void;
+
+    forceUpdate(): void;
   }
 
   interface HTMLAttributes {}
@@ -20,578 +25,726 @@ declare global {
 
 import 'ionicons';
 import '@ionic/core';
-import '@stencil/router';
-
 
 import {
-  AppAuth as AppAuth
-} from './components/app-auth/app-auth';
+  Credentials,
+  News,
+  PDBOptions,
+  Session,
+  User,
+} from './global/interfaces';
+import {
+  ComponentProps,
+  ComponentRef,
+} from '@ionic/core';
+import {
+  EventEmitter,
+} from '@stencil/core';
 
 declare global {
-  interface HTMLAppAuthElement extends AppAuth, HTMLStencilElement {
+
+  namespace StencilComponents {
+    interface AppAuth {
+      'authenticate': (user: Credentials, options?: PDBOptions) => Promise<any>;
+      'getIsServer': () => Promise<boolean>;
+      'initMocks': (mocks: any) => Promise<void>;
+      'isServersConnected': () => Promise<any>;
+      'logout': () => Promise<any>;
+      'reauthenticate': (server: any, options?: PDBOptions) => Promise<any>;
+      'register': (user: User, options?: PDBOptions) => Promise<any>;
+      'validateEmail': (email: string) => Promise<any>;
+      'validateUsername': (username: string) => Promise<any>;
+    }
   }
+
+  interface HTMLAppAuthElement extends StencilComponents.AppAuth, HTMLStencilElement {}
+
   var HTMLAppAuthElement: {
     prototype: HTMLAppAuthElement;
     new (): HTMLAppAuthElement;
   };
   interface HTMLElementTagNameMap {
-    "app-auth": HTMLAppAuthElement;
+    'app-auth': HTMLAppAuthElement;
   }
   interface ElementTagNameMap {
-    "app-auth": HTMLAppAuthElement;
+    'app-auth': HTMLAppAuthElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "app-auth": JSXElements.AppAuthAttributes;
+      'app-auth': JSXElements.AppAuthAttributes;
     }
   }
   namespace JSXElements {
     export interface AppAuthAttributes extends HTMLAttributes {
-      
+
     }
   }
 }
 
 
-import {
-  AppConnection as AppConnection
-} from './components/app-connection/app-connection';
-
 declare global {
-  interface HTMLAppConnectionElement extends AppConnection, HTMLStencilElement {
+
+  namespace StencilComponents {
+    interface AppConnection {
+      'getConnection': () => Promise<string>;
+      'setConnection': (conMode: string) => void;
+    }
   }
+
+  interface HTMLAppConnectionElement extends StencilComponents.AppConnection, HTMLStencilElement {}
+
   var HTMLAppConnectionElement: {
     prototype: HTMLAppConnectionElement;
     new (): HTMLAppConnectionElement;
   };
   interface HTMLElementTagNameMap {
-    "app-connection": HTMLAppConnectionElement;
+    'app-connection': HTMLAppConnectionElement;
   }
   interface ElementTagNameMap {
-    "app-connection": HTMLAppConnectionElement;
+    'app-connection': HTMLAppConnectionElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "app-connection": JSXElements.AppConnectionAttributes;
+      'app-connection': JSXElements.AppConnectionAttributes;
     }
   }
   namespace JSXElements {
     export interface AppConnectionAttributes extends HTMLAttributes {
-      
+
     }
   }
 }
 
 
-import {
-  AppError as AppError
-} from './components/app-error/app-error';
-
 declare global {
-  interface HTMLAppErrorElement extends AppError, HTMLStencilElement {
+
+  namespace StencilComponents {
+    interface AppError {
+      'initController': (toastCtrl: any) => void;
+      'showError': (message: string) => Promise<void>;
+    }
   }
+
+  interface HTMLAppErrorElement extends StencilComponents.AppError, HTMLStencilElement {}
+
   var HTMLAppErrorElement: {
     prototype: HTMLAppErrorElement;
     new (): HTMLAppErrorElement;
   };
   interface HTMLElementTagNameMap {
-    "app-error": HTMLAppErrorElement;
+    'app-error': HTMLAppErrorElement;
   }
   interface ElementTagNameMap {
-    "app-error": HTMLAppErrorElement;
+    'app-error': HTMLAppErrorElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "app-error": JSXElements.AppErrorAttributes;
+      'app-error': JSXElements.AppErrorAttributes;
     }
   }
   namespace JSXElements {
     export interface AppErrorAttributes extends HTMLAttributes {
-      
+
     }
   }
 }
 
 
-import {
-  AppHeader as AppHeader
-} from './components/app-header/app-header';
-
 declare global {
-  interface HTMLAppHeaderElement extends AppHeader, HTMLStencilElement {
+
+  namespace StencilComponents {
+    interface AppHeader {
+      'back': boolean;
+      'cmodal': boolean;
+      'handleBack': () => void;
+      'handleLogout': () => void;
+      'handleModal': () => void;
+      'htitle': string;
+      'initMocks': (mocks: any) => Promise<void>;
+      'logout': boolean;
+      'menu': boolean;
+    }
   }
+
+  interface HTMLAppHeaderElement extends StencilComponents.AppHeader, HTMLStencilElement {}
+
   var HTMLAppHeaderElement: {
     prototype: HTMLAppHeaderElement;
     new (): HTMLAppHeaderElement;
   };
   interface HTMLElementTagNameMap {
-    "app-header": HTMLAppHeaderElement;
+    'app-header': HTMLAppHeaderElement;
   }
   interface ElementTagNameMap {
-    "app-header": HTMLAppHeaderElement;
+    'app-header': HTMLAppHeaderElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "app-header": JSXElements.AppHeaderAttributes;
+      'app-header': JSXElements.AppHeaderAttributes;
     }
   }
   namespace JSXElements {
     export interface AppHeaderAttributes extends HTMLAttributes {
-      back?: any;
-      htitle?: any;
-      logout?: any;
-      menu?: any;
+      'back'?: boolean;
+      'cmodal'?: boolean;
+      'htitle'?: string;
+      'logout'?: boolean;
+      'menu'?: boolean;
     }
   }
 }
 
 
-import {
-  AppHome as AppHome
-} from './components/app-home/app-home';
-
 declare global {
-  interface HTMLAppHomeElement extends AppHome, HTMLStencilElement {
+
+  namespace StencilComponents {
+    interface AppHome {
+      'getComps': () => any;
+      'initMocks': (mocks: any) => Promise<void>;
+      'isServersConnected': () => Promise<void>;
+      'mode': string;
+      'setConMode': () => Promise<void>;
+    }
   }
+
+  interface HTMLAppHomeElement extends StencilComponents.AppHome, HTMLStencilElement {}
+
   var HTMLAppHomeElement: {
     prototype: HTMLAppHomeElement;
     new (): HTMLAppHomeElement;
   };
   interface HTMLElementTagNameMap {
-    "app-home": HTMLAppHomeElement;
+    'app-home': HTMLAppHomeElement;
   }
   interface ElementTagNameMap {
-    "app-home": HTMLAppHomeElement;
+    'app-home': HTMLAppHomeElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "app-home": JSXElements.AppHomeAttributes;
+      'app-home': JSXElements.AppHomeAttributes;
     }
   }
   namespace JSXElements {
     export interface AppHomeAttributes extends HTMLAttributes {
-      
+      'mode'?: string;
     }
   }
 }
 
 
-import {
-  AppLogin as AppLogin
-} from './components/app-login/app-login';
-
 declare global {
-  interface HTMLAppLoginElement extends AppLogin, HTMLStencilElement {
+
+  namespace StencilComponents {
+    interface AppLogin {
+      'handleChangePassword': (password: string) => Promise<void>;
+      'handleChangeUsername': (username: string) => Promise<void>;
+      'handleRegister': (tag: string) => Promise<void>;
+      'handleSubmit': () => Promise<void>;
+      'initMocks': (mocks: any) => Promise<void>;
+      'isServersConnected': () => Promise<void>;
+      'setUser': (username: string, password: string) => void;
+    }
   }
+
+  interface HTMLAppLoginElement extends StencilComponents.AppLogin, HTMLStencilElement {}
+
   var HTMLAppLoginElement: {
     prototype: HTMLAppLoginElement;
     new (): HTMLAppLoginElement;
   };
   interface HTMLElementTagNameMap {
-    "app-login": HTMLAppLoginElement;
+    'app-login': HTMLAppLoginElement;
   }
   interface ElementTagNameMap {
-    "app-login": HTMLAppLoginElement;
+    'app-login': HTMLAppLoginElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "app-login": JSXElements.AppLoginAttributes;
+      'app-login': JSXElements.AppLoginAttributes;
     }
   }
   namespace JSXElements {
     export interface AppLoginAttributes extends HTMLAttributes {
-      
+
     }
   }
 }
 
 
-import {
-  AppLogo as AppLogo
-} from './components/app-logo/app-logo';
-
 declare global {
-  interface HTMLAppLogoElement extends AppLogo, HTMLStencilElement {
+
+  namespace StencilComponents {
+    interface AppLogo {
+      'width': string;
+    }
   }
+
+  interface HTMLAppLogoElement extends StencilComponents.AppLogo, HTMLStencilElement {}
+
   var HTMLAppLogoElement: {
     prototype: HTMLAppLogoElement;
     new (): HTMLAppLogoElement;
   };
   interface HTMLElementTagNameMap {
-    "app-logo": HTMLAppLogoElement;
+    'app-logo': HTMLAppLogoElement;
   }
   interface ElementTagNameMap {
-    "app-logo": HTMLAppLogoElement;
+    'app-logo': HTMLAppLogoElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "app-logo": JSXElements.AppLogoAttributes;
+      'app-logo': JSXElements.AppLogoAttributes;
     }
   }
   namespace JSXElements {
     export interface AppLogoAttributes extends HTMLAttributes {
-      width?: string;
+      'width'?: string;
     }
   }
 }
 
 
-import {
-  AppMain as AppMain
-} from './components/app-main/app-main';
-
 declare global {
-  interface HTMLAppMainElement extends AppMain, HTMLStencilElement {
+
+  namespace StencilComponents {
+    interface AppMain {
+
+    }
   }
+
+  interface HTMLAppMainElement extends StencilComponents.AppMain, HTMLStencilElement {}
+
   var HTMLAppMainElement: {
     prototype: HTMLAppMainElement;
     new (): HTMLAppMainElement;
   };
   interface HTMLElementTagNameMap {
-    "app-main": HTMLAppMainElement;
+    'app-main': HTMLAppMainElement;
   }
   interface ElementTagNameMap {
-    "app-main": HTMLAppMainElement;
+    'app-main': HTMLAppMainElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "app-main": JSXElements.AppMainAttributes;
+      'app-main': JSXElements.AppMainAttributes;
     }
   }
   namespace JSXElements {
     export interface AppMainAttributes extends HTMLAttributes {
-      
+
     }
   }
 }
 
 
-import {
-  AppMenu as AppMenu
-} from './components/app-menu/app-menu';
-
 declare global {
-  interface HTMLAppMenuElement extends AppMenu, HTMLStencilElement {
+
+  namespace StencilComponents {
+    interface AppMenu {
+      'initMocks': (mocks: any) => Promise<void>;
+    }
   }
+
+  interface HTMLAppMenuElement extends StencilComponents.AppMenu, HTMLStencilElement {}
+
   var HTMLAppMenuElement: {
     prototype: HTMLAppMenuElement;
     new (): HTMLAppMenuElement;
   };
   interface HTMLElementTagNameMap {
-    "app-menu": HTMLAppMenuElement;
+    'app-menu': HTMLAppMenuElement;
   }
   interface ElementTagNameMap {
-    "app-menu": HTMLAppMenuElement;
+    'app-menu': HTMLAppMenuElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "app-menu": JSXElements.AppMenuAttributes;
+      'app-menu': JSXElements.AppMenuAttributes;
     }
   }
   namespace JSXElements {
     export interface AppMenuAttributes extends HTMLAttributes {
-      
+
     }
   }
 }
 
 
-import {
-  AppNewsCreate as AppNewsCreate
-} from './components/app-news-create/app-news-create';
-
 declare global {
-  interface HTMLAppNewsCreateElement extends AppNewsCreate, HTMLStencilElement {
+
+  namespace StencilComponents {
+    interface AppNewsCreate {
+      'handleChangeNewsAuthor': (author: string) => Promise<void>;
+      'handleChangeNewsContent': (content: string) => Promise<void>;
+      'handleChangeNewsTitle': (title: string) => Promise<void>;
+      'handleSubmit': () => Promise<void>;
+      'initMocks': (mocks: any) => Promise<void>;
+      'isServersConnected': () => Promise<void>;
+    }
   }
+
+  interface HTMLAppNewsCreateElement extends StencilComponents.AppNewsCreate, HTMLStencilElement {}
+
   var HTMLAppNewsCreateElement: {
     prototype: HTMLAppNewsCreateElement;
     new (): HTMLAppNewsCreateElement;
   };
   interface HTMLElementTagNameMap {
-    "app-news-create": HTMLAppNewsCreateElement;
+    'app-news-create': HTMLAppNewsCreateElement;
   }
   interface ElementTagNameMap {
-    "app-news-create": HTMLAppNewsCreateElement;
+    'app-news-create': HTMLAppNewsCreateElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "app-news-create": JSXElements.AppNewsCreateAttributes;
+      'app-news-create': JSXElements.AppNewsCreateAttributes;
     }
   }
   namespace JSXElements {
     export interface AppNewsCreateAttributes extends HTMLAttributes {
-      
+
     }
   }
 }
 
 
-import {
-  AppNewsDisplay as AppNewsDisplay
-} from './components/app-news-display/app-news-display';
-
 declare global {
-  interface HTMLAppNewsDisplayElement extends AppNewsDisplay, HTMLStencilElement {
+
+  namespace StencilComponents {
+    interface AppNewsDisplay {
+      'getNews': () => Promise<News[]>;
+      'handleClick': (params: News) => void;
+      'initMocks': (mocks: any) => Promise<void>;
+      'isServersConnected': () => Promise<void>;
+      'setNews': (news: News[]) => void;
+    }
   }
+
+  interface HTMLAppNewsDisplayElement extends StencilComponents.AppNewsDisplay, HTMLStencilElement {}
+
   var HTMLAppNewsDisplayElement: {
     prototype: HTMLAppNewsDisplayElement;
     new (): HTMLAppNewsDisplayElement;
   };
   interface HTMLElementTagNameMap {
-    "app-news-display": HTMLAppNewsDisplayElement;
+    'app-news-display': HTMLAppNewsDisplayElement;
   }
   interface ElementTagNameMap {
-    "app-news-display": HTMLAppNewsDisplayElement;
+    'app-news-display': HTMLAppNewsDisplayElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "app-news-display": JSXElements.AppNewsDisplayAttributes;
+      'app-news-display': JSXElements.AppNewsDisplayAttributes;
     }
   }
   namespace JSXElements {
     export interface AppNewsDisplayAttributes extends HTMLAttributes {
-      
+
     }
   }
 }
 
 
-import {
-  AppNewsItem as AppNewsItem
-} from './components/app-news-item/app-news-item';
-
 declare global {
-  interface HTMLAppNewsItemElement extends AppNewsItem, HTMLStencilElement {
+
+  namespace StencilComponents {
+    interface AppNewsItem {
+      'initMocks': (mocks: any) => Promise<void>;
+      'itemObj': any;
+    }
   }
+
+  interface HTMLAppNewsItemElement extends StencilComponents.AppNewsItem, HTMLStencilElement {}
+
   var HTMLAppNewsItemElement: {
     prototype: HTMLAppNewsItemElement;
     new (): HTMLAppNewsItemElement;
   };
   interface HTMLElementTagNameMap {
-    "app-news-item": HTMLAppNewsItemElement;
+    'app-news-item': HTMLAppNewsItemElement;
   }
   interface ElementTagNameMap {
-    "app-news-item": HTMLAppNewsItemElement;
+    'app-news-item': HTMLAppNewsItemElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "app-news-item": JSXElements.AppNewsItemAttributes;
+      'app-news-item': JSXElements.AppNewsItemAttributes;
     }
   }
   namespace JSXElements {
     export interface AppNewsItemAttributes extends HTMLAttributes {
-      
+      'itemObj'?: any;
     }
   }
 }
 
 
-import {
-  AppPage as AppPage
-} from './components/app-page/app-page';
-
 declare global {
-  interface HTMLAppPageElement extends AppPage, HTMLStencilElement {
+
+  namespace StencilComponents {
+    interface AppPage {
+      'initMocks': (mocks: any) => Promise<void>;
+      'isServersConnected': () => Promise<void>;
+    }
   }
+
+  interface HTMLAppPageElement extends StencilComponents.AppPage, HTMLStencilElement {}
+
   var HTMLAppPageElement: {
     prototype: HTMLAppPageElement;
     new (): HTMLAppPageElement;
   };
   interface HTMLElementTagNameMap {
-    "app-page": HTMLAppPageElement;
+    'app-page': HTMLAppPageElement;
   }
   interface ElementTagNameMap {
-    "app-page": HTMLAppPageElement;
+    'app-page': HTMLAppPageElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "app-page": JSXElements.AppPageAttributes;
+      'app-page': JSXElements.AppPageAttributes;
     }
   }
   namespace JSXElements {
     export interface AppPageAttributes extends HTMLAttributes {
-      
+
     }
   }
 }
 
 
-import {
-  AppPopover as AppPopover
-} from './components/app-popover/app-popover';
-
 declare global {
-  interface HTMLAppPopoverElement extends AppPopover, HTMLStencilElement {
+
+  namespace StencilComponents {
+    interface AppPopover {
+      'component': ComponentRef;
+      'componentProps': ComponentProps;
+      'ev': any;
+      'handleClick': (item: string) => void;
+      'initMocks': (mocks: any) => Promise<void>;
+      'setData': () => Promise<void>;
+    }
   }
+
+  interface HTMLAppPopoverElement extends StencilComponents.AppPopover, HTMLStencilElement {}
+
   var HTMLAppPopoverElement: {
     prototype: HTMLAppPopoverElement;
     new (): HTMLAppPopoverElement;
   };
   interface HTMLElementTagNameMap {
-    "app-popover": HTMLAppPopoverElement;
+    'app-popover': HTMLAppPopoverElement;
   }
   interface ElementTagNameMap {
-    "app-popover": HTMLAppPopoverElement;
+    'app-popover': HTMLAppPopoverElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "app-popover": JSXElements.AppPopoverAttributes;
+      'app-popover': JSXElements.AppPopoverAttributes;
     }
   }
   namespace JSXElements {
     export interface AppPopoverAttributes extends HTMLAttributes {
-      
+      'component'?: ComponentRef;
+      'componentProps'?: ComponentProps;
+      'ev'?: any;
+      'onItemClick'?: (event: CustomEvent) => void;
     }
   }
 }
 
 
-import {
-  AppPouchDB as AppPouchdb
-} from './components/app-pouchdb/app-pouchdb';
-
 declare global {
-  interface HTMLAppPouchdbElement extends AppPouchdb, HTMLStencilElement {
+
+  namespace StencilComponents {
+    interface AppPouchdb {
+      'addTextAttachments': (doc: any, text: string, name: string) => Promise<any>;
+      'checkDesignDocuments': () => Promise<void>;
+      'createDoc': (doc: any) => Promise<any>;
+      'deleteDoc': (doc: any) => Promise<any>;
+      'destroyDatabase': () => Promise<any>;
+      'getDB': () => Promise<any>;
+      'getDoc': (docId: string) => Promise<any>;
+      'getIsDesignDocs': () => boolean[];
+      'getTextAttachments': (docId: string, name: string) => Promise<any>;
+      'initDatabase': (pouchDBName: string, remoteDB?: string, options?: PDBOptions) => Promise<any>;
+      'initDesignDocuments': () => Promise<void>;
+      'initRemoteSync': (remote: string) => void;
+      'isServerDBAlive': () => boolean;
+      'queryDoc': (path: string, options: any) => Promise<any>;
+      'setServerDB': (alive: boolean) => void;
+      'updateDoc': (doc: any) => Promise<any>;
+    }
   }
+
+  interface HTMLAppPouchdbElement extends StencilComponents.AppPouchdb, HTMLStencilElement {}
+
   var HTMLAppPouchdbElement: {
     prototype: HTMLAppPouchdbElement;
     new (): HTMLAppPouchdbElement;
   };
   interface HTMLElementTagNameMap {
-    "app-pouchdb": HTMLAppPouchdbElement;
+    'app-pouchdb': HTMLAppPouchdbElement;
   }
   interface ElementTagNameMap {
-    "app-pouchdb": HTMLAppPouchdbElement;
+    'app-pouchdb': HTMLAppPouchdbElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "app-pouchdb": JSXElements.AppPouchdbAttributes;
+      'app-pouchdb': JSXElements.AppPouchdbAttributes;
     }
   }
   namespace JSXElements {
     export interface AppPouchdbAttributes extends HTMLAttributes {
-      
+
     }
   }
 }
 
 
-import {
-  AppProfile as AppProfile
-} from './components/app-profile/app-profile';
-
 declare global {
-  interface HTMLAppProfileElement extends AppProfile, HTMLStencilElement {
+
+  namespace StencilComponents {
+    interface AppProfile {
+      'initMocks': (mocks: any) => Promise<void>;
+      'isServersConnected': () => Promise<void>;
+      'name': string;
+    }
   }
+
+  interface HTMLAppProfileElement extends StencilComponents.AppProfile, HTMLStencilElement {}
+
   var HTMLAppProfileElement: {
     prototype: HTMLAppProfileElement;
     new (): HTMLAppProfileElement;
   };
   interface HTMLElementTagNameMap {
-    "app-profile": HTMLAppProfileElement;
+    'app-profile': HTMLAppProfileElement;
   }
   interface ElementTagNameMap {
-    "app-profile": HTMLAppProfileElement;
+    'app-profile': HTMLAppProfileElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "app-profile": JSXElements.AppProfileAttributes;
+      'app-profile': JSXElements.AppProfileAttributes;
     }
   }
   namespace JSXElements {
     export interface AppProfileAttributes extends HTMLAttributes {
-      
+      'name'?: string;
     }
   }
 }
 
 
-import {
-  AppRegister as AppRegister
-} from './components/app-register/app-register';
-
 declare global {
-  interface HTMLAppRegisterElement extends AppRegister, HTMLStencilElement {
+
+  namespace StencilComponents {
+    interface AppRegister {
+      'handleChangeConfirmPassword': (confPassword: string, debTimeout: number) => Promise<void>;
+      'handleChangeEmail': (email: string, debTimeout: number) => Promise<void>;
+      'handleChangeName': (name: string, debTimeout: number) => Promise<void>;
+      'handleChangePassword': (password: string, debTimeout: number) => Promise<void>;
+      'handleChangeUsername': (username: string, debTimeout: number) => Promise<void>;
+      'handleSubmit': () => Promise<void>;
+      'initMocks': (mocks: any) => Promise<void>;
+      'isServersConnected': () => Promise<void>;
+      'setUserData': (data: User) => void;
+    }
   }
+
+  interface HTMLAppRegisterElement extends StencilComponents.AppRegister, HTMLStencilElement {}
+
   var HTMLAppRegisterElement: {
     prototype: HTMLAppRegisterElement;
     new (): HTMLAppRegisterElement;
   };
   interface HTMLElementTagNameMap {
-    "app-register": HTMLAppRegisterElement;
+    'app-register': HTMLAppRegisterElement;
   }
   interface ElementTagNameMap {
-    "app-register": HTMLAppRegisterElement;
+    'app-register': HTMLAppRegisterElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "app-register": JSXElements.AppRegisterAttributes;
+      'app-register': JSXElements.AppRegisterAttributes;
     }
   }
   namespace JSXElements {
     export interface AppRegisterAttributes extends HTMLAttributes {
-      
+
     }
   }
 }
 
 
-import {
-  AppSession as AppSession
-} from './components/app-session/app-session';
-
 declare global {
-  interface HTMLAppSessionElement extends AppSession, HTMLStencilElement {
+
+  namespace StencilComponents {
+    interface AppSession {
+      'getCurrentSession': () => Session;
+      'getSessionData': () => Promise<Session>;
+      'removeSessionData': () => Promise<Session>;
+      'saveSessionData': (data: Session) => void;
+    }
   }
+
+  interface HTMLAppSessionElement extends StencilComponents.AppSession, HTMLStencilElement {}
+
   var HTMLAppSessionElement: {
     prototype: HTMLAppSessionElement;
     new (): HTMLAppSessionElement;
   };
   interface HTMLElementTagNameMap {
-    "app-session": HTMLAppSessionElement;
+    'app-session': HTMLAppSessionElement;
   }
   interface ElementTagNameMap {
-    "app-session": HTMLAppSessionElement;
+    'app-session': HTMLAppSessionElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "app-session": JSXElements.AppSessionAttributes;
+      'app-session': JSXElements.AppSessionAttributes;
     }
   }
   namespace JSXElements {
     export interface AppSessionAttributes extends HTMLAttributes {
-      
+
     }
   }
 }
 
 
-import {
-  LazyImg as LazyImg
-} from './components/lazy-img/lazy-img';
-
 declare global {
-  interface HTMLLazyImgElement extends LazyImg, HTMLStencilElement {
+
+  namespace StencilComponents {
+    interface LazyImg {
+      'alt': string;
+      'src': string;
+    }
   }
+
+  interface HTMLLazyImgElement extends StencilComponents.LazyImg, HTMLStencilElement {}
+
   var HTMLLazyImgElement: {
     prototype: HTMLLazyImgElement;
     new (): HTMLLazyImgElement;
   };
   interface HTMLElementTagNameMap {
-    "lazy-img": HTMLLazyImgElement;
+    'lazy-img': HTMLLazyImgElement;
   }
   interface ElementTagNameMap {
-    "lazy-img": HTMLLazyImgElement;
+    'lazy-img': HTMLLazyImgElement;
   }
   namespace JSX {
     interface IntrinsicElements {
-      "lazy-img": JSXElements.LazyImgAttributes;
+      'lazy-img': JSXElements.LazyImgAttributes;
     }
   }
   namespace JSXElements {
     export interface LazyImgAttributes extends HTMLAttributes {
-      alt?: string;
-      src?: string;
+      'alt'?: string;
+      'onLazyImgloaded'?: (event: CustomEvent<HTMLImageElement>) => void;
+      'src'?: string;
     }
   }
 }

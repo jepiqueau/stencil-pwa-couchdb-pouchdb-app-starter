@@ -1,5 +1,5 @@
 import { Component, Element, Method } from '@stencil/core';
-import { getMenuController, getPopoverController,getNavComponent } from '../../helpers/ui-utilities'
+import { initializeComponents, initializeMocks} from '../../helpers/ui-utilities';
 import { PopOptions } from '../../global/interfaces';
 
 @Component({
@@ -10,64 +10,74 @@ export class AppMenu {
 
     @Element() el: HTMLElement;
 
-    private _menuCtrl: HTMLIonMenuControllerElement;
-    private _nav: HTMLIonNavElement;
-    private _popoverCtrl: HTMLIonPopoverControllerElement;
     private _popCmp:string;
     private _popEvent: any;
     private _popData: any;
-
+    private _conMode: string ='offline';
+    private _comps: any;
+    @Method()
+    initMocks(mocks:any): Promise<void> {
+        // used for unit testing only
+        this._comps = { popoverCtrl:true,connectionProvider:true,menuCtrl:true,
+                        navCmpt:true} ;
+        return initializeMocks(this._comps,mocks);
+    }
+/*
     @Method()
     handleClick(item:string) {
         this._handleClick(item);
     }
+*/
     async componentDidLoad() {
-        this._nav = await getNavComponent();
-        this._menuCtrl = await getMenuController();
-        this._popoverCtrl = await getPopoverController();
+        this._comps = { popoverCtrl:true,connectionProvider:true,menuCtrl:true,
+            navCmpt:true} ;
+        await initializeComponents(this._comps);
     }
-    async presentPopover(options:PopOptions) {          
+    async presentPopover(options:PopOptions): Promise<void> {          
         this._popCmp = options.component ? options.component : null;
         this._popEvent = options.ev ? options.ev : null;
-        this._popData = options.data ? options.data : null;
-        const popoverElement = await this._popoverCtrl.create({
+        this._popData = options.componentProps ? options.componentProps : null;
+
+        const popoverElement = await this._comps.popoverCtrl.create({
             component: this._popCmp,
             ev: this._popEvent,
-            data:this._popData
+            componentProps:this._popData
         });
-        return await popoverElement.present();
+        return popoverElement.present();
     }
-    _handleClickEvent(event: UIEvent) {
-        this._handleClick(event.srcElement.textContent);
+    _handleClickEvent(event) {
+        this._handleClick(event.target.textContent);
     }
-    
-    _handleClick(item:string,event?:UIEvent) {
-        this._menuCtrl.toggle('menu');
-
+    async _handleClick(item:string,event?:UIEvent) {
+        this._comps.menuCtrl.toggle('menu');
         switch (item) {
             case "Home" : {
-                this._nav.setRoot('app-home');
+                if(this._comps.connectionProvider != null ) {
+                    this._conMode = await this._comps.connectionProvider.getConnection();
+                }                          
+                this._comps.navCmpt.setRoot('app-home',{mode:this._conMode});
                 break;
             }
             case "Profile" : {
-                this._nav.setRoot('app-profile',{name:'stencil'});
+                this._comps.navCmpt.push('app-profile',{name:'stencil'});
                 break;
             }
             case "News": {
-                this.presentPopover({
+                await this.presentPopover({
                     component:'app-popover',
                     ev:event,
-                    data:{data:[
+                    componentProps:{data:[
                         {cmp:'app-news-create',value:'News Create'},
                         {cmp:'app-news-display',value:'News Display'}
                     ]}
                 });
-
                 break;
+            }
+            default: {
+                console.log('default')
             }            
         }
     } 
-
     // rendering
     render() {
         return (
@@ -80,13 +90,13 @@ export class AppMenu {
                     </ion-header>
                     <ion-content>
                         <ion-list id="menu-items">
-                            <ion-item onClick={ (event: UIEvent) => this._handleClickEvent(event)}>
+                            <ion-item onClick={this._handleClickEvent.bind(this)}>
                                 <ion-label>Home</ion-label>
                             </ion-item>
-                            <ion-item onClick={ (event: UIEvent) => this._handleClickEvent(event)}>
+                            <ion-item onClick={this._handleClickEvent.bind(this)}>
                                 <ion-label>Profile</ion-label>
                             </ion-item>
-                            <ion-item onClick={ (event: UIEvent) => this._handleClickEvent(event)}>
+                            <ion-item onClick={this._handleClickEvent.bind(this)}>
                                 <ion-label>News</ion-label>
                             </ion-item>
                         </ion-list>

@@ -7,9 +7,11 @@ app-home {
     text-align: center;
     font-family: "Roboto", sans-serif;
   }
-  ion-button {
-    .button {
-      background-color: var(--theme-c2) !important;
+  ion-content {
+    ion-button {
+      .button {
+        background-color: var(--theme-c2) !important;
+      }
     }
   }
 }

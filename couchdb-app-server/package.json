@@ -1,6 +1,6 @@
 {
   "name": "pwacouchdbpouchdbserverappstarter",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "Stencil PWA CouchDB-PouchDB Application Starter Server",
   "engines": {
     "node": "6.11.1"
