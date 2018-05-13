@@ -1,5 +1,4 @@
 import { Component, Prop, Element, Method, State } from '@stencil/core';
-import { LoadingController } from '@ionic/core';
 import { initializeComponents, initializeMocks, presentLoading, dismissLoading } from '../../helpers/ui-utilities';
 import { User, Session, Credentials } from '../../global/interfaces'
 import { validator } from '../../validators/validators'
@@ -15,13 +14,13 @@ export class AppLogin {
     private _Username: HTMLElement;
     private _Password: HTMLElement;
     private _button: HTMLElement;
-    private _loadingCtrl: LoadingController | any;
+    private _loadingCtrl: HTMLIonLoadingControllerElement | any;
     private _comps: any;
 
     @Element() el: HTMLElement;
     @State() username: string = '';
     @State() password: string = '';
-    @Prop({ connect: 'ion-loading-controller' }) loadingCtrl: LoadingController;
+    @Prop({ connect: 'ion-loading-controller' }) loadingCtrl: HTMLIonLoadingControllerElement;
 
     @Method()
     isServersConnected(): Promise<void> {

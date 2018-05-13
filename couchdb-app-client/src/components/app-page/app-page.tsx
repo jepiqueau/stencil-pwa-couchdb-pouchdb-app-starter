@@ -1,5 +1,4 @@
 import { Component, Prop, Element, Method } from '@stencil/core';
-import { LoadingController } from '@ionic/core';
 import { checkServersConnected, initializeComponents, initializeMocks } from '../../helpers/ui-utilities';
 
 
@@ -9,11 +8,11 @@ import { checkServersConnected, initializeComponents, initializeMocks } from '..
 })
 export class AppPage {
 
-    private _loadingCtrl : LoadingController | any;
+    private _loadingCtrl : HTMLIonLoadingControllerElement | any;
     private _comps: any
 
     @Element() el: HTMLElement;
-    @Prop({ connect: 'ion-loading-controller' }) loadingCtrl: LoadingController;
+    @Prop({ connect: 'ion-loading-controller' }) loadingCtrl: HTMLIonLoadingControllerElement;
 
     @Method()
     initMocks(mocks:any): Promise<void> {

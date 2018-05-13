@@ -1,6 +1,6 @@
 {
   "name": "pwacouchdbpouchdbclientappstarter",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "Stencil PWA CouchDB-PouchDB Application Starter Client",
   "files": [
     "dist/"
@@ -13,7 +13,7 @@
     "Typescript"
   ],
   "scripts": {
-    "build": "stencil build --prerender",
+    "build": "stencil build",
     "dev": "sd concurrent \"stencil build --dev --watch\" \"stencil-dev-server\" ",
     "devWithSW": "sd concurrent \"stencil build --dev --service-worker --watch\" \"stencil-dev-server\" ",
     "serve": "stencil-dev-server",
@@ -22,15 +22,15 @@
     "test.watch": "jest --watch --no-cache"
   },
   "dependencies": {
+    "@ionic/core": "^4.0.0-alpha.6",
+    "@stencil/core": "^0.8.2",
     "@stencil/router": "latest",
     "@types/pouchdb": "^6.3.2",
     "pouchdb-browser": "^6.4.3"
   },
   "devDependencies": {
-    "@ionic/core": "^4.0.0-alpha.2",
-    "@stencil/core": "^0.7.24",
     "@stencil/dev-server": "latest",
-    "@stencil/sass": "0.0.2",
+    "@stencil/sass": "0.0.3",
     "@stencil/utils": "latest",
     "@types/jest": "^22.2.3",
     "jest": "^22.4.3",

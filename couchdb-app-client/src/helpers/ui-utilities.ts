@@ -1,13 +1,12 @@
-import { ToastController, LoadingController } from '@ionic/core';
 import { Session } from '../global/interfaces';
 import { LOADING_TIMEOUT } from '../global/constants';
 
 let loading: HTMLIonLoadingElement;
-const showToast = async (toastCtrl: ToastController,msg:string): Promise<void> => {
+const showToast = async (toastCtrl: HTMLIonToastControllerElement,msg:string): Promise<void> => {
   const toast = await toastCtrl.create({ message: msg, duration: 1500 });
   toast.present();
 }
-const presentLoading = async (loadingCtrl:LoadingController,message:string): Promise<void> => {
+const presentLoading = async (loadingCtrl:HTMLIonLoadingControllerElement,message:string): Promise<void> => {
   loading = await loadingCtrl.create({
     content: message,
     spinner: 'crescent',
@@ -100,7 +99,7 @@ const getPreviousUrl = (location?:any):string => {
 const getUrl = ():string => {
   return `${window.location.href}`;
 }
-const checkServersConnected = ( loadingCtrl: LoadingController | any,
+const checkServersConnected = ( loadingCtrl: HTMLIonLoadingControllerElement | any,
                           comps:any, page:string,loadingMsg:string): Promise<void> => {
   return new Promise<void>(async (resolve) => {
     await presentLoading(loadingCtrl,loadingMsg);

@@ -1,6 +1,4 @@
 import { Component, Element, Listen, Prop, State, Method } from '@stencil/core';
-import { LoadingController } from '@ionic/core';
-import { ToastController } from '@ionic/core';
 import { initializeComponents, initializeMocks, checkServersConnected } from '../../helpers/ui-utilities';
 //import { NavParams } from '@ionic/core/dist/types/components/nav/nav-util';
 
@@ -13,10 +11,10 @@ import { urlB64ToUint8Array } from '../../helpers/utils';
 })
 export class AppProfile {
   private _comps:any;
-  private _loadingCtrl : LoadingController | any;
+  private _loadingCtrl : HTMLIonLoadingControllerElement | any;
   @Element() el:Element;
-  @Prop({ connect: 'ion-toast-controller' }) toastCtrl: ToastController;
-  @Prop({ connect: 'ion-loading-controller' }) loadingCtrl: LoadingController;
+  @Prop({ connect: 'ion-toast-controller' }) toastCtrl: HTMLIonToastControllerElement;
+  @Prop({ connect: 'ion-loading-controller' }) loadingCtrl: HTMLIonLoadingControllerElement;
   @Prop() name: string;
   @State() notify: boolean;
   @State() swSupport: boolean;

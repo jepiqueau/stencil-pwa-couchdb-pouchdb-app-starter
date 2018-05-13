@@ -1,5 +1,4 @@
 import { Component, Prop, Element, Method } from '@stencil/core';
-import { ToastController } from '@ionic/core';
 import { showToast} from '../../helpers/ui-utilities';
 
 @Component({
@@ -8,7 +7,7 @@ import { showToast} from '../../helpers/ui-utilities';
 })
 export class AppError {
     @Element() el: Element;
-    @Prop({ connect: 'ion-toast-controller' }) toastCtrl: ToastController;
+    @Prop({ connect: 'ion-toast-controller' }) toastCtrl: HTMLIonToastControllerElement;
     @Method()
     initController(toastCtrl:any) {
       this._initController(toastCtrl);

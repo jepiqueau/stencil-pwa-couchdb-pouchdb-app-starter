@@ -1,14 +1,13 @@
 //import '@ionic/core';
 //import '@stencil/core';
-import { Component, Prop, /*Listen*/ } from '@stencil/core';
-import { ToastController } from '@ionic/core';
+import { Component, Prop, Listen } from '@stencil/core';
 
 @Component({
   tag: 'app-main',
   styleUrl: 'app-main.scss'
 })
 export class AppMain {
-  @Prop({ connect: 'ion-toast-controller' }) toastCtrl: ToastController;
+  @Prop({ connect: 'ion-toast-controller' }) toastCtrl: HTMLIonToastControllerElement;
 
   componentDidLoad() {
 
@@ -40,6 +39,18 @@ export class AppMain {
       window.location.reload();
   }
 */
+  @Listen('window:swUpdate')
+  async onSWUpdate() {
+    const toast = await this.toastCtrl.create({
+      message: 'New version available',
+      showCloseButton: true,
+      closeButtonText: 'Reload'
+    });
+    await toast.present();
+    await toast.onWillDismiss()
+    window.location.reload();
+  }
+
 
   // rendering
   render() {

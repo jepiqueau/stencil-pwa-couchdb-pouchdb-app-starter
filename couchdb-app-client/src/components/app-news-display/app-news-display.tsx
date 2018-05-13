@@ -1,5 +1,5 @@
 import { Component, Element, Method, State, Prop } from '@stencil/core';
-import { LoadingController, ComponentProps } from '@ionic/core';
+import { ComponentProps } from '@ionic/core';
 import { initializeComponents, checkServersConnected, initializeMocks } from '../../helpers/ui-utilities';
 import { News } from '../../global/interfaces';
 
@@ -10,7 +10,7 @@ import { News } from '../../global/interfaces';
 export class AppNewsDisplay {
   @Element() el: HTMLElement;
   @State() news: Array<News>;
-  @Prop({ connect: 'ion-loading-controller' }) loadingCtrl: LoadingController;
+  @Prop({ connect: 'ion-loading-controller' }) loadingCtrl: HTMLIonLoadingControllerElement;
 
   @Method()
   initMocks(mocks:any): Promise<void> {
@@ -39,7 +39,7 @@ export class AppNewsDisplay {
     this._handleClick(params); 
   }
   private _comps:any;
-  private _loadingCtrl : LoadingController | any;
+  private _loadingCtrl : HTMLIonLoadingControllerElement | any;
  
   componentWillLoad() {
     this._loadingCtrl = this.loadingCtrl;

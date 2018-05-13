@@ -1,5 +1,4 @@
 import { Component, State, Prop, Method } from '@stencil/core';
-import { LoadingController } from '@ionic/core';
 import { initializeComponents, initializeMocks, checkServersConnected } from '../../helpers/ui-utilities';
 
 
@@ -8,13 +7,13 @@ import { initializeComponents, initializeMocks, checkServersConnected } from '..
   styleUrl: 'app-home.scss'
 })
 export class AppHome {
-  @Prop({ connect: 'ion-loading-controller' }) loadingCtrl: LoadingController;
+  @Prop({ connect: 'ion-loading-controller' }) loadingCtrl: HTMLIonLoadingControllerElement;
   @Prop() mode: string;
   @State() isRender: boolean = false;
 
   private _comps: any;
   private _conMode: string = 'offline';
-  private _loadingCtrl : LoadingController | any;
+  private _loadingCtrl : HTMLIonLoadingControllerElement | any;
   private _logout : boolean;
 
   @Method()
